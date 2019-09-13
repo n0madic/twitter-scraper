@@ -22,19 +22,19 @@ type Video struct {
 
 // Tweet type
 type Tweet struct {
-	ID           string
-	PermanentURL string
-	Retweeted    bool
-	Timestamp    int64
-	TimeParsed   time.Time
+	Hashtags     []string
 	HTML         string
-	Text         string
+	ID           string
+	IsRetweet    bool
+	Likes        int
+	PermanentURL string
+	Photos       []string
 	Replies      int
 	Retweets     int
-	Likes        int
-	Hashtags     []string
+	Text         string
+	TimeParsed   time.Time
+	Timestamp    int64
 	URLs         []string
-	Photos       []string
 	Videos       []Video
 }
 
@@ -89,7 +89,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		ajaxJSON := make(map[string]interface{})
 		err = json.NewDecoder(resp.Body).Decode(&ajaxJSON)
 		if err != nil {
@@ -112,7 +112,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 				tweet.Text = s.Find(".tweet-text").Text()
 				tweet.HTML, _ = s.Find(".tweet-text").Html()
 				s.Find(".js-retweet-text").Each(func(i int, c *goquery.Selection) {
-					tweet.Retweeted = true
+					tweet.IsRetweet = true
 				})
 				s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
 					txt := strings.TrimSpace(c.Text())
@@ -130,7 +130,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 				s.Find(".twitter-hashtag").Each(func(i int, h *goquery.Selection) {
 					tweet.Hashtags = append(tweet.Hashtags, h.Text())
 				})
-				s.Find("a.twitter-timeline-link").Each(func(i int, u *goquery.Selection) {
+				s.Find("a.twitter-timeline-link:not(.u-hidden)").Each(func(i int, u *goquery.Selection) {
 					if link, ok := u.Attr("data-expanded-url"); ok {
 						tweet.URLs = append(tweet.URLs, link)
 					}
@@ -153,10 +153,10 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 				tweets = append(tweets, &tweet)
 			}
 		})
-	} else if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("ERROR: user %s not found", user)
+	} else if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("user %s not found", user)
 	} else {
-		return nil, fmt.Errorf("ERROR status code: %d %s", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("status code: %d %s", resp.StatusCode, resp.Status)
 	}
 
 	return tweets, nil
