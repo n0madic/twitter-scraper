@@ -20,6 +20,9 @@ import (
 
 func main() {
     for tweet := range twitterscraper.GetTweets("kennethreitz", 25) {
+		if tweet.Error != nil {
+			panic(tweet.Error)
+		}
         fmt.Println(tweet.HTML)
     }
 }

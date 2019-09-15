@@ -38,23 +38,30 @@ type Tweet struct {
 	Videos       []Video
 }
 
+// Result of scrapping
+type Result struct {
+	Tweet
+	Error error
+}
+
 // GetTweets returns channel with tweets for a given user
-func GetTweets(user string, pages int) <-chan Tweet {
-	channel := make(chan Tweet, 0)
+func GetTweets(user string, pages int) <-chan *Result {
+	channel := make(chan *Result, 0)
 	go func(user string) {
+		defer close(channel)
 		var lastTweetID string
 		for pages > 0 {
 			tweets, err := FetchTweets(user, lastTweetID)
 			if err != nil {
-				panic(err)
+				channel <- &Result{Error: err}
+				return
 			}
 			for _, tweet := range tweets {
 				lastTweetID = tweet.ID
-				channel <- *tweet
+				channel <- &Result{Tweet: *tweet}
 			}
 			pages--
 		}
-		close(channel)
 	}(user)
 	return channel
 }
