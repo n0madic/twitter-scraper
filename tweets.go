@@ -163,7 +163,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 	} else if resp.StatusCode == http.StatusNotFound {
 		return nil, fmt.Errorf("user %s not found", user)
 	} else {
-		return nil, fmt.Errorf("status code: %d %s", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("response status: %s", resp.Status)
 	}
 
 	return tweets, nil
