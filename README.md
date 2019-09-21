@@ -22,9 +22,9 @@ import (
 
 func main() {
     for tweet := range twitterscraper.GetTweets("kennethreitz", 25) {
-		if tweet.Error != nil {
-			panic(tweet.Error)
-		}
+        if tweet.Error != nil {
+            panic(tweet.Error)
+        }
         fmt.Println(tweet.HTML)
     }
 }
@@ -38,16 +38,16 @@ It appears you can ask for up to 25 pages of tweets reliably (~486 tweets).
 package main
 
 import (
-	"fmt"
-	twitterscraper "github.com/n0madic/twitter-scraper"
+    "fmt"
+    twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
 func main() {
-	profile, err := twitterscraper.GetProfile("kennethreitz")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+v\n", profile)
+    profile, err := twitterscraper.GetProfile("kennethreitz")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Printf("%+v\n", profile)
 }
 ```
 
