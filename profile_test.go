@@ -38,15 +38,15 @@ func TestGetProfile(t *testing.T) {
 	}
 
 	if profile.FollowersCount == 0 {
-		t.Error("Expected FollowersCount length is greater than zero")
+		t.Error("Expected FollowersCount is greater than zero")
 	}
 	if profile.FollowingCount == 0 {
-		t.Error("Expected FollowingCount length is greater than zero")
+		t.Error("Expected FollowingCount is greater than zero")
 	}
 	if profile.LikesCount == 0 {
-		t.Error("Expected LikesCount length is greater than zero")
+		t.Error("Expected LikesCount is greater than zero")
 	}
 	if profile.TweetsCount == 0 {
-		t.Error("Expected TweetsCount length is greater than zero")
+		t.Error("Expected TweetsCount is greater than zero")
 	}
 }
