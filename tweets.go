@@ -150,7 +150,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 				s.Find(".PlayableMedia-player").Each(func(i int, v *goquery.Selection) {
 					if style, ok := v.Attr("style"); ok {
 						if strings.Contains(style, "background") {
-							match := regexp.MustCompile(`https:\/\/.+\/(\w+)\.jpg`).FindStringSubmatch(style)
+							match := regexp.MustCompile(`https:\/\/.+\/([\w-]+)\.(?:jpg|png)`).FindStringSubmatch(style)
 							if len(match) == 2 {
 								tweet.Videos = append(tweet.Videos, Video{ID: match[1], Preview: match[0]})
 							}
