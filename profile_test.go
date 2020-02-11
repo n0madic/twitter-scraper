@@ -11,8 +11,8 @@ import (
 func TestGetProfile(t *testing.T) {
 	joined := time.Unix(1245860880, 0)
 	sample := Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1174251196758003713/IjXgRpzL_400x400.jpg",
-		Biography: "Designer of interfaces & abstractions.",
+		Avatar:    "https://pbs.twimg.com/profile_images/1176439369596624896/Fkqe6qVj_400x400.jpg",
+		Biography: "Kenneth Reitz, n: a garden–variety self–referential loop. Not available for purchase. Made in USA.",
 		Birthday:  "1988",
 		Joined:    &joined,
 		Location:  "Eden, Earth, Milky Way",
