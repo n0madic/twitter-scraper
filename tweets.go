@@ -118,7 +118,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 				tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", user, tweet.ID)
 				tweet.Text = s.Find(".tweet-text").Text()
 				tweet.HTML, _ = s.Find(".tweet-text").Html()
-				s.Find(".js-retweet-text").Each(func(i int, c *goquery.Selection) {
+				s.Find(".js-retweet-text, .QuoteTweet").Each(func(i int, c *goquery.Selection) {
 					tweet.IsRetweet = true
 				})
 				s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
