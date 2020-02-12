@@ -51,6 +51,25 @@ func main() {
 }
 ```
 
+### Get trends
+
+```golang
+package main
+
+import (
+    "fmt"
+    twitterscraper "github.com/n0madic/twitter-scraper"
+)
+
+func main() {
+    trends, err := twitterscraper.GetTrends()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(trends)
+}
+```
+
 ## Installation
 
 ```shell
