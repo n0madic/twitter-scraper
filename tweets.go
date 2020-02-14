@@ -45,7 +45,7 @@ type Result struct {
 
 // GetTweets returns channel with tweets for a given user
 func GetTweets(user string, pages int) <-chan *Result {
-	channel := make(chan *Result, 0)
+	channel := make(chan *Result)
 	go func(user string) {
 		defer close(channel)
 		var lastTweetID string
