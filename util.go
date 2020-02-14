@@ -26,7 +26,7 @@ func getHTMLFromJSON(req *http.Request, field string) (*strings.Reader, error) {
 
 	htm, ok := ajaxJSON[field].(string)
 	if !ok {
-		return nil, fmt.Errorf("filed not found in JSON")
+		return nil, fmt.Errorf("field not found in JSON")
 	}
 
 	return strings.NewReader(htm), nil
