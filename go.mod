@@ -1,4 +1,4 @@
-module github.com/tolantop/twitter-scraper
+module github.com/n0madic/twitter-scraper
 
 go 1.13
 
