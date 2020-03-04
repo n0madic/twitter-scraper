@@ -113,7 +113,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 			s.Find(".js-retweet-text, .QuoteTweet").Each(func(i int, c *goquery.Selection) {
 				tweet.IsRetweet = true
 			})
-			s.Find(`span[class="js-pinned-text"]`).Each(func(i int, c *goquery.Selection) {
+			s.Find("span.js-pinned-text").Each(func(i int, c *goquery.Selection) {
 				tweet.IsPin = true
 			})
 			s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
