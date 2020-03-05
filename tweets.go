@@ -24,6 +24,7 @@ type Tweet struct {
 	Hashtags     []string
 	HTML         string
 	ID           string
+	IsPin        bool
 	IsRetweet    bool
 	Likes        int
 	PermanentURL string
@@ -111,6 +112,9 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 			tweet.HTML, _ = s.Find(".tweet-text").Html()
 			s.Find(".js-retweet-text, .QuoteTweet").Each(func(i int, c *goquery.Selection) {
 				tweet.IsRetweet = true
+			})
+			s.Find("span.js-pinned-text").Each(func(i int, c *goquery.Selection) {
+				tweet.IsPin = true
 			})
 			s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
 				txt := strings.TrimSpace(c.Text())
