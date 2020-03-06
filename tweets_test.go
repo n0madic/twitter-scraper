@@ -6,7 +6,7 @@ import (
 
 func TestGetTweets(t *testing.T) {
 	count := 0
-	for tweet := range GetTweets("kennethreitz", 2) {
+	for tweet := range GetTweets("nomadic_ua", 2) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {
