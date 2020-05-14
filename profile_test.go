@@ -9,20 +9,21 @@ import (
 )
 
 func TestGetProfile(t *testing.T) {
-	joined := time.Unix(1245860880, 0)
+	loc := time.FixedZone("UTC", 0)
+	joined := time.Date(2007,02, 20,6,35,0,0, loc)
 	sample := Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1176439369596624896/Fkqe6qVj_400x400.jpg",
-		Biography: "Kenneth Reitz, n: a garden–variety self–referential loop. Not available for purchase. Made in USA.",
-		Birthday:  "1988",
+		Avatar:    "https://pbs.twimg.com/profile_images/1111729635610382336/_65QFl7B_400x400.png",
+		Biography: "What’s happening?!",
+		Birthday:  "March 21",
 		Joined:    &joined,
-		Location:  "Eden, Earth, Milky Way",
-		Name:      "☿ Kenneth Reitz",
-		URL:       "https://twitter.com/kennethreitz",
-		Username:  "kennethreitz",
-		Website:   "https://kennethreitz.org/values",
+		Location:  "Everywhere",
+		Name:      "Twitter",
+		URL:       "https://twitter.com/Twitter",
+		Username:  "Twitter",
+		Website:   "https://about.twitter.com/",
 	}
 
-	profile, err := GetProfile("kennethreitz")
+	profile, err := GetProfile("Twitter")
 	if err != nil {
 		t.Error(err)
 	}
