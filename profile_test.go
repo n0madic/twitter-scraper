@@ -10,7 +10,7 @@ import (
 
 func TestGetProfile(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
-	joined := time.Date(2007,02, 20,6,35,0,0, loc)
+	joined := time.Date(2007, 02, 20, 6, 35, 0, 0, loc)
 	sample := Profile{
 		Avatar:    "https://pbs.twimg.com/profile_images/1111729635610382336/_65QFl7B_400x400.png",
 		Biography: "What’s happening?!",

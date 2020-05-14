@@ -8,7 +8,7 @@ import (
 
 const trendsURL = "https://twitter.com/i/trends"
 
-// GetTrends return list of trends
+// GetTrends return list of trends.
 func GetTrends() ([]string, error) {
 	req, err := http.NewRequest("GET", trendsURL, nil)
 	if err != nil {

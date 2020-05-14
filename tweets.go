@@ -13,13 +13,13 @@ import (
 
 const ajaxURL = "https://twitter.com/i/profiles/show/%s/timeline/tweets"
 
-// Video type
+// Video type.
 type Video struct {
 	ID      string
 	Preview string
 }
 
-// Tweet type
+// Tweet type.
 type Tweet struct {
 	Hashtags     []string
 	HTML         string
@@ -38,13 +38,13 @@ type Tweet struct {
 	Videos       []Video
 }
 
-// Result of scrapping
+// Result of scrapping.
 type Result struct {
 	Tweet
 	Error error
 }
 
-// GetTweets returns channel with tweets for a given user
+// GetTweets returns channel with tweets for a given user.
 func GetTweets(user string, pages int) <-chan *Result {
 	channel := make(chan *Result)
 	go func(user string) {
@@ -66,7 +66,7 @@ func GetTweets(user string, pages int) <-chan *Result {
 	return channel
 }
 
-// FetchTweets gets tweets for a given user, via the Twitter frontend API
+// FetchTweets gets tweets for a given user, via the Twitter frontend API.
 func FetchTweets(user string, last string) ([]*Tweet, error) {
 	var tweets []*Tweet
 
@@ -119,13 +119,14 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 			})
 			s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
 				txt := strings.TrimSpace(c.Text())
-				if strings.HasSuffix(txt, "likes") {
+				switch {
+				case strings.HasSuffix(txt, "likes"):
 					l := strings.Split(txt, " ")
 					tweet.Likes, _ = strconv.Atoi(l[0])
-				} else if strings.HasSuffix(txt, "replies") {
+				case strings.HasSuffix(txt, "replies"):
 					l := strings.Split(txt, " ")
 					tweet.Replies, _ = strconv.Atoi(l[0])
-				} else if strings.HasSuffix(txt, "retweets") {
+				case strings.HasSuffix(txt, "retweets"):
 					l := strings.Split(txt, " ")
 					tweet.Retweets, _ = strconv.Atoi(l[0])
 				}

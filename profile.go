@@ -10,7 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// Profile of twitter user
+// Profile of twitter user.
 type Profile struct {
 	Avatar         string
 	Biography      string
@@ -27,26 +27,28 @@ type Profile struct {
 	Website        string
 }
 
-// GetProfile return parsed user profile
+// GetProfile return parsed user profile.
 func GetProfile(username string) (Profile, error) {
 	url := "https://twitter.com/" + username
 
 	req, err := http.NewRequest("GET", url, nil)
-
 	if err != nil {
 		return Profile{}, err
 	}
 
 	req.Header.Set("Accept-Language", "en-US")
 
-	res, err := http.DefaultClient.Do(req)
-
-	if res == nil {
+	resp, err := http.DefaultClient.Do(req)
+	if resp == nil {
 		return Profile{}, err
 	}
+	defer resp.Body.Close()
 
-	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if resp.StatusCode != http.StatusOK {
+		return Profile{}, fmt.Errorf("response status: %s", resp.Status)
+	}
 
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return Profile{}, err
 	}
