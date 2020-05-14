@@ -2,6 +2,7 @@ package twitterscraper
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +30,23 @@ type Profile struct {
 // GetProfile return parsed user profile
 func GetProfile(username string) (Profile, error) {
 	url := "https://twitter.com/" + username
-	doc, err := goquery.NewDocument(url)
+
+	req, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		return Profile{}, err
+	}
+
+	req.Header.Set("Accept-Language", "en-US")
+
+	res, err := http.DefaultClient.Do(req)
+
+	if res == nil {
+		return Profile{}, err
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+
 	if err != nil {
 		return Profile{}, err
 	}
