@@ -4,7 +4,8 @@ import "testing"
 
 func TestGetSearchTweets(t *testing.T) {
 	count := 0
-	for tweet := range GetSearchTweets("twitter scraper data -filter:retweets", 50) {
+	maxTweetsNbr := 50
+	for tweet := range SearchTweets("twitter scraper data -filter:retweets", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {
@@ -30,7 +31,7 @@ func TestGetSearchTweets(t *testing.T) {
 		}
 	}
 
-	if count == 0 {
-		t.Error("Expected tweets count is greater than zero")
+	if count != maxTweetsNbr {
+		t.Errorf("Expected tweets count=%v, got: %v", maxTweetsNbr, count)
 	}
 }

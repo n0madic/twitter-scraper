@@ -9,8 +9,8 @@ import (
 
 const ajaxSearchURL = "https://twitter.com/i/search/timeline?q=%s"
 
-// GetTweets returns channel with tweets for a given search query
-func GetSearchTweets(query string, maxTweetsNbr int) <-chan *Result {
+// SearchTweets returns channel with tweets for a given search query
+func SearchTweets(query string, maxTweetsNbr int) <-chan *Result {
 	channel := make(chan *Result)
 	go func(query string) {
 		defer close(channel)
@@ -40,7 +40,7 @@ func GetSearchTweets(query string, maxTweetsNbr int) <-chan *Result {
 	return channel
 }
 
-// FetchTweets gets tweets for a given search query, via the Twitter frontend API
+// FetchSearchTweets gets tweets for a given search query, via the Twitter frontend API
 func FetchSearchTweets(query, maxId string) ([]*Tweet, error) {
 	if maxId != "" {
 		query = query + " max_id:" + maxId
