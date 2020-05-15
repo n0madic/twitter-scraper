@@ -32,7 +32,7 @@ func main() {
 
 It appears you can ask for up to 25 pages of tweets reliably (~486 tweets).
 
-### Get query search tweets
+### Search tweets by query standard operators
 
 Tweets containing “twitter” and “scraper” and “data“, filtering out retweets:
 
@@ -45,7 +45,7 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.GetSearchTweets("twitter scraper data -filter:retweets", 50) {
+    for tweet := range twitterscraper.SearchTweets("twitter scraper data -filter:retweets", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
