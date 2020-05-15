@@ -10,7 +10,7 @@ You can use this library to get the text of any user's Tweets trivially.
 
 ## Usage
 
-### Get tweets
+### Get user tweets
 
 ```golang
 package main
@@ -31,6 +31,33 @@ func main() {
 ```
 
 It appears you can ask for up to 25 pages of tweets reliably (~486 tweets).
+
+### Search tweets by query standard operators
+
+Tweets containing “twitter” and “scraper” and “data“, filtering out retweets:
+
+```golang
+package main
+
+import (
+    "fmt"
+    twitterscraper "github.com/n0madic/twitter-scraper"
+)
+
+func main() {
+    for tweet := range twitterscraper.SearchTweets("twitter scraper data -filter:retweets", 50) {
+        if tweet.Error != nil {
+            panic(tweet.Error)
+        }
+        fmt.Println(tweet.HTML)
+    }
+}
+```
+
+The search ends if we have 50 tweets.
+
+See <https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standard-operators> for build standard queries.
+
 
 ### Get profile
 

@@ -68,7 +68,6 @@ func GetTweets(user string, pages int) <-chan *Result {
 
 // FetchTweets gets tweets for a given user, via the Twitter frontend API.
 func FetchTweets(user string, last string) ([]*Tweet, error) {
-	var tweets []*Tweet
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(ajaxURL, user), nil)
 	if err != nil {
@@ -96,6 +95,17 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 		return nil, err
 	}
 
+	tweets, err := readTweetsFromHTML(htm)
+	if err != nil {
+		return nil, err
+	}
+
+	return tweets, nil
+}
+
+func readTweetsFromHTML (htm *strings.Reader) ([]*Tweet, error) {
+	var tweets []*Tweet
+
 	doc, err := goquery.NewDocumentFromReader(htm)
 	if err != nil {
 		return nil, err
@@ -108,6 +118,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 			tweet.Timestamp, _ = strconv.ParseInt(timeStr, 10, 64)
 			tweet.TimeParsed = time.Unix(tweet.Timestamp, 0)
 			tweet.ID = s.AttrOr("data-item-id", "")
+			user, _ := s.Find(".tweet").Attr("data-screen-name")
 			tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", user, tweet.ID)
 			tweet.Text = s.Find(".tweet-text").Text()
 			tweet.HTML, _ = s.Find(".tweet-text").Html()
