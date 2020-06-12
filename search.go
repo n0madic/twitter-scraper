@@ -1,6 +1,7 @@
 package twitterscraper
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -10,13 +11,20 @@ import (
 const ajaxSearchURL = "https://twitter.com/i/search/timeline?q=%s"
 
 // SearchTweets returns channel with tweets for a given search query
-func SearchTweets(query string, maxTweetsNbr int) <-chan *Result {
+func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *Result {
 	channel := make(chan *Result)
 	go func(query string) {
 		defer close(channel)
 		var maxId string
 		tweetsNbr := 0
 		for tweetsNbr < maxTweetsNbr {
+			select {
+			case <-ctx.Done():
+				channel <- &Result{Error: ctx.Err()}
+				return
+			default:
+			}
+
 			tweets, err := FetchSearchTweets(query, maxId)
 			if err != nil {
 				channel <- &Result{Error: err}
@@ -28,9 +36,16 @@ func SearchTweets(query string, maxTweetsNbr int) <-chan *Result {
 			}
 
 			for _, tweet := range tweets {
+				select {
+				case <-ctx.Done():
+					channel <- &Result{Error: ctx.Err()}
+					return
+				default:
+				}
+
 				if tweetsNbr < maxTweetsNbr {
 					lastId, _ := strconv.ParseInt(tweet.ID, 10, 64)
-					maxId = strconv.FormatInt(lastId - 1, 10)
+					maxId = strconv.FormatInt(lastId-1, 10)
 					channel <- &Result{Tweet: *tweet}
 				}
 				tweetsNbr++

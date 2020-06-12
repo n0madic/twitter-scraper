@@ -1,11 +1,14 @@
 package twitterscraper
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestGetSearchTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 50
-	for tweet := range SearchTweets("twitter scraper data -filter:retweets", maxTweetsNbr) {
+	for tweet := range SearchTweets(context.Background(), "twitter scraper data -filter:retweets", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {

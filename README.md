@@ -45,7 +45,7 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.SearchTweets("twitter scraper data -filter:retweets", 50) {
+    for tweet := range twitterscraper.SearchTweets(context.Background(), "twitter scraper data -filter:retweets", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
