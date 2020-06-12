@@ -1,6 +1,7 @@
 package twitterscraper
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -45,18 +46,32 @@ type Result struct {
 }
 
 // GetTweets returns channel with tweets for a given user.
-func GetTweets(user string, pages int) <-chan *Result {
+func GetTweets(ctx context.Context, user string, pages int) <-chan *Result {
 	channel := make(chan *Result)
 	go func(user string) {
 		defer close(channel)
 		var lastTweetID string
 		for pages > 0 {
+			select {
+			case <-ctx.Done():
+				channel <- &Result{Error: ctx.Err()}
+				return
+			default:
+			}
+
 			tweets, err := FetchTweets(user, lastTweetID)
 			if err != nil {
 				channel <- &Result{Error: err}
 				return
 			}
 			for _, tweet := range tweets {
+				select {
+				case <-ctx.Done():
+					channel <- &Result{Error: ctx.Err()}
+					return
+				default:
+				}
+
 				lastTweetID = tweet.ID
 				channel <- &Result{Tweet: *tweet}
 			}
@@ -103,7 +118,7 @@ func FetchTweets(user string, last string) ([]*Tweet, error) {
 	return tweets, nil
 }
 
-func readTweetsFromHTML (htm *strings.Reader) ([]*Tweet, error) {
+func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 	var tweets []*Tweet
 
 	doc, err := goquery.NewDocumentFromReader(htm)
