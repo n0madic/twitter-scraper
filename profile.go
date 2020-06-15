@@ -77,6 +77,7 @@ func GetProfile(username string) (Profile, error) {
 		Name:           doc.Find(".ProfileHeaderCard-nameLink").First().Text(),
 		TweetsCount:    parseCount(doc.Find(".ProfileNav-item--tweets.is-active > a > span.ProfileNav-value").First()),
 		URL:            url,
+		UserID:         doc.Find(".ProfileNav").First().AttrOr("data-user-id", ""),
 		Username:       doc.Find(".u-linkComplex-target").First().Text(),
 		Website:        strings.TrimSpace(doc.Find(".ProfileHeaderCard-urlText.u-dir > a").First().AttrOr("title", "")),
 	}, nil

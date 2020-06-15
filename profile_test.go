@@ -21,6 +21,7 @@ func TestGetProfile(t *testing.T) {
 		Location:   "Everywhere",
 		Name:       "Twitter",
 		URL:        "https://twitter.com/Twitter",
+		UserID:     "783214",
 		Username:   "Twitter",
 		Website:    "https://about.twitter.com/",
 	}
