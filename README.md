@@ -1,6 +1,6 @@
 # Twitter Scraper
 
-Golang implementation of python library <https://github.com/kennethreitz/twitter-scraper>
+Golang implementation of python library <https://github.com/bisguzar/twitter-scraper>
 
 Twitter's API is annoying to work with, and has lots of limitations —
 luckily their frontend (JavaScript) has it's own API, which I reverse-engineered.
@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.GetTweets("kennethreitz", 25) {
+    for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", 25) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
@@ -30,7 +30,7 @@ func main() {
 }
 ```
 
-It appears you can ask for up to 25 pages of tweets reliably (~486 tweets).
+It appears you can ask for up to 5 pages of tweets reliably.
 
 ### Search tweets by query standard operators
 
@@ -45,7 +45,8 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.SearchTweets(context.Background(), "twitter scraper data -filter:retweets", 50) {
+    for tweet := range twitterscraper.SearchTweets(context.Background(),
+        "twitter scraper data -filter:retweets", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
@@ -70,7 +71,7 @@ import (
 )
 
 func main() {
-    profile, err := twitterscraper.GetProfile("kennethreitz")
+    profile, err := twitterscraper.GetProfile("Twitter")
     if err != nil {
         panic(err)
     }
