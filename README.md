@@ -8,6 +8,12 @@ No API rate limits. No tokens needed. No restrictions. Extremely fast.
 
 You can use this library to get the text of any user's Tweets trivially.
 
+## Installation
+
+```shell
+go get -u github.com/n0madic/twitter-scraper
+```
+
 ## Usage
 
 ### Get user tweets
@@ -21,7 +27,7 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", 25) {
+    for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", 5) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
@@ -57,8 +63,7 @@ func main() {
 
 The search ends if we have 50 tweets.
 
-See <https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standard-operators> for build standard queries.
-
+See [Rules and filtering](https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standard-operators) for build standard queries.
 
 ### Get profile
 
@@ -96,10 +101,4 @@ func main() {
     }
     fmt.Println(trends)
 }
-```
-
-## Installation
-
-```shell
-go get -u github.com/n0madic/twitter-scraper
 ```
