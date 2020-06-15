@@ -22,6 +22,7 @@ go get -u github.com/n0madic/twitter-scraper
 package main
 
 import (
+    "context"
     "fmt"
     twitterscraper "github.com/n0madic/twitter-scraper"
 )
@@ -46,6 +47,7 @@ Tweets containing “twitter” and “scraper” and “data“, filtering out 
 package main
 
 import (
+    "context"
     "fmt"
     twitterscraper "github.com/n0madic/twitter-scraper"
 )
