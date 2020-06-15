@@ -3,7 +3,6 @@ package twitterscraper
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -84,17 +83,12 @@ func GetTweets(ctx context.Context, user string, pages int) <-chan *Result {
 // FetchTweets gets tweets for a given user, via the Twitter frontend API.
 func FetchTweets(user string, last string) ([]*Tweet, error) {
 
-	req, err := http.NewRequest("GET", fmt.Sprintf(ajaxURL, user), nil)
+	req, err := newRequest(fmt.Sprintf(ajaxURL, user))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Referer", "https://twitter.com/"+user)
-	req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8")
-	req.Header.Set("Accept-Language", "en-US")
-	req.Header.Set("X-Twitter-Active-User", "yes")
-	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	q := req.URL.Query()
 	q.Add("include_available_features", "1")

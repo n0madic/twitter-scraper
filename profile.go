@@ -31,13 +31,10 @@ type Profile struct {
 func GetProfile(username string) (Profile, error) {
 	url := "https://twitter.com/" + username
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := newRequest(url)
 	if err != nil {
 		return Profile{}, err
 	}
-
-	req.Header.Set("Accept-Language", "en-US")
-	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	resp, err := http.DefaultClient.Do(req)
 	if resp == nil {
