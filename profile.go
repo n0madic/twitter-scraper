@@ -37,6 +37,7 @@ func GetProfile(username string) (Profile, error) {
 	}
 
 	req.Header.Set("Accept-Language", "en-US")
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	resp, err := http.DefaultClient.Do(req)
 	if resp == nil {
