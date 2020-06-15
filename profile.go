@@ -13,6 +13,7 @@ import (
 // Profile of twitter user.
 type Profile struct {
 	Avatar         string
+	Banner         string
 	Biography      string
 	Birthday       string
 	FollowersCount int
@@ -65,6 +66,7 @@ func GetProfile(username string) (Profile, error) {
 
 	return Profile{
 		Avatar:         doc.Find(".ProfileAvatar-image").First().AttrOr("src", ""),
+		Banner:         doc.Find(".ProfileCanopy-headerBg img").First().AttrOr("src", ""),
 		Biography:      doc.Find(".ProfileHeaderCard-bio.u-dir").First().Text(),
 		Birthday:       strings.ReplaceAll(strings.TrimSpace(doc.Find(".ProfileHeaderCard-birthdateText.u-dir").First().Text()), "Born ", ""),
 		FollowersCount: parseCount(doc.Find(".ProfileNav-item--followers > a > span.ProfileNav-value").First()),
