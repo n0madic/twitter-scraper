@@ -35,6 +35,8 @@ type Tweet struct {
 	TimeParsed   time.Time
 	Timestamp    int64
 	URLs         []string
+	UserID       string
+	Username     string
 	Videos       []Video
 }
 
@@ -135,8 +137,9 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 			tweet.Timestamp, _ = strconv.ParseInt(timeStr, 10, 64)
 			tweet.TimeParsed = time.Unix(tweet.Timestamp, 0)
 			tweet.ID = s.AttrOr("data-item-id", "")
-			user, _ := s.Find(".tweet").Attr("data-screen-name")
-			tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", user, tweet.ID)
+			tweet.UserID = s.Find(".tweet").AttrOr("data-user-id", "")
+			tweet.Username = s.Find(".tweet").AttrOr("data-screen-name", "")
+			tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", tweet.Username, tweet.ID)
 			tweet.Text = s.Find(".tweet-text").Text()
 			tweet.HTML, _ = s.Find(".tweet-text").Html()
 			s.Find(".js-retweet-text, .QuoteTweet").Each(func(i int, c *goquery.Selection) {
