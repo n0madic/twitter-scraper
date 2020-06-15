@@ -45,12 +45,13 @@ type Result struct {
 }
 
 // GetTweets returns channel with tweets for a given user.
-func GetTweets(ctx context.Context, user string, pages int) <-chan *Result {
+func GetTweets(ctx context.Context, user string, maxTweetsNbr int) <-chan *Result {
 	channel := make(chan *Result)
 	go func(user string) {
 		defer close(channel)
 		var lastTweetID string
-		for pages > 0 {
+		tweetsNbr := 0
+		for tweetsNbr < maxTweetsNbr {
 			select {
 			case <-ctx.Done():
 				channel <- &Result{Error: ctx.Err()}
@@ -63,6 +64,11 @@ func GetTweets(ctx context.Context, user string, pages int) <-chan *Result {
 				channel <- &Result{Error: err}
 				return
 			}
+
+			if len(tweets) == 0 {
+				break
+			}
+
 			for _, tweet := range tweets {
 				select {
 				case <-ctx.Done():
@@ -71,10 +77,12 @@ func GetTweets(ctx context.Context, user string, pages int) <-chan *Result {
 				default:
 				}
 
-				lastTweetID = tweet.ID
-				channel <- &Result{Tweet: *tweet}
+				if tweetsNbr < maxTweetsNbr {
+					lastTweetID = tweet.ID
+					channel <- &Result{Tweet: *tweet}
+				}
+				tweetsNbr++
 			}
-			pages--
 		}
 	}(user)
 	return channel

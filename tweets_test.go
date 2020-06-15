@@ -7,7 +7,8 @@ import (
 
 func TestGetTweets(t *testing.T) {
 	count := 0
-	for tweet := range GetTweets(context.Background(), "nomadic_ua", 2) {
+	maxTweetsNbr := 50
+	for tweet := range GetTweets(context.Background(), "Twitter", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {
@@ -32,7 +33,7 @@ func TestGetTweets(t *testing.T) {
 			}
 		}
 	}
-	if count == 0 {
-		t.Error("Expected tweets count is greater than zero")
+	if count != maxTweetsNbr {
+		t.Errorf("Expected tweets count=%v, got: %v", maxTweetsNbr, count)
 	}
 }

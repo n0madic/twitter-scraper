@@ -28,7 +28,7 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", 5) {
+    for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
@@ -37,7 +37,7 @@ func main() {
 }
 ```
 
-It appears you can ask for up to 5 pages of tweets reliably.
+It appears you can ask for up to 50 tweets.
 
 ### Search tweets by query standard operators
 
