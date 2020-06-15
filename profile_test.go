@@ -12,15 +12,17 @@ func TestGetProfile(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
 	joined := time.Date(2007, 02, 20, 6, 35, 0, 0, loc)
 	sample := Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1270500941498912768/W-80pLvu_400x400.jpg",
-		Biography: "Black queer lives matter.\nBlack trans lives matter.\n#BlackLivesMatter",
-		Birthday:  "March 21",
-		Joined:    &joined,
-		Location:  "Everywhere",
-		Name:      "Twitter",
-		URL:       "https://twitter.com/Twitter",
-		Username:  "Twitter",
-		Website:   "https://about.twitter.com/",
+		Avatar:     "https://pbs.twimg.com/profile_images/1270500941498912768/W-80pLvu_400x400.jpg",
+		Biography:  "Black queer lives matter.\nBlack trans lives matter.\n#BlackLivesMatter",
+		Birthday:   "March 21",
+		IsPrivate:  false,
+		IsVerified: true,
+		Joined:     &joined,
+		Location:   "Everywhere",
+		Name:       "Twitter",
+		URL:        "https://twitter.com/Twitter",
+		Username:   "Twitter",
+		Website:    "https://about.twitter.com/",
 	}
 
 	profile, err := GetProfile("Twitter")

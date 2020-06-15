@@ -17,12 +17,15 @@ type Profile struct {
 	Birthday       string
 	FollowersCount int
 	FollowingCount int
+	IsPrivate      bool
+	IsVerified     bool
 	Joined         *time.Time
 	LikesCount     int
 	Location       string
 	Name           string
 	TweetsCount    int
 	URL            string
+	UserID         string
 	Username       string
 	Website        string
 }
@@ -66,6 +69,8 @@ func GetProfile(username string) (Profile, error) {
 		Birthday:       strings.ReplaceAll(strings.TrimSpace(doc.Find(".ProfileHeaderCard-birthdateText.u-dir").First().Text()), "Born ", ""),
 		FollowersCount: parseCount(doc.Find(".ProfileNav-item--followers > a > span.ProfileNav-value").First()),
 		FollowingCount: parseCount(doc.Find(".ProfileNav-item--following > a > span.ProfileNav-value").First()),
+		IsPrivate:      doc.Find(".ProfileHeaderCard-badges .Icon--protected").First().Text() != "",
+		IsVerified:     doc.Find(".ProfileHeaderCard-badges .Icon--verified").First().Text() != "",
 		Joined:         &joined,
 		LikesCount:     parseCount(doc.Find(".ProfileNav-item--favorites > a > span.ProfileNav-value").First()),
 		Location:       location,
