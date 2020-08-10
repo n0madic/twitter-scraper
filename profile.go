@@ -55,14 +55,16 @@ func GetProfile(username string) (Profile, error) {
 		return Profile{}, err
 	}
 
-	// parse location, also check is username valid
+	// parse location
 	location := strings.TrimSpace(doc.Find(".ProfileHeaderCard-locationText.u-dir").First().Text())
-	if location == "" {
-		return Profile{}, fmt.Errorf("either @%s does not exist or is private", username)
-	}
 
 	// parse join date text
 	joined, _ := time.Parse("3:4 PM - 2 Jan 2006", doc.Find(".ProfileHeaderCard-joinDateText.u-dir").First().AttrOr("title", ""))
+
+	// check is username valid
+	if location == "" && joined.IsZero() {
+		return Profile{}, fmt.Errorf("either @%s does not exist or is private", username)
+	}
 
 	return Profile{
 		Avatar:         doc.Find(".ProfileAvatar-image").First().AttrOr("src", ""),
