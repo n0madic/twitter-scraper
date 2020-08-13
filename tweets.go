@@ -61,7 +61,8 @@ func GetTweets(ctx context.Context, user string, maxTweetsNbr int) <-chan *Resul
 			default:
 			}
 
-			tweets, err := FetchTweets(user, lastTweetID)
+			query := fmt.Sprintf("(from:%s)", user)
+			tweets, err := FetchSearchTweets(query, lastTweetID)
 			if err != nil {
 				channel <- &Result{Error: err}
 				return
@@ -80,7 +81,8 @@ func GetTweets(ctx context.Context, user string, maxTweetsNbr int) <-chan *Resul
 				}
 
 				if tweetsNbr < maxTweetsNbr {
-					lastTweetID = tweet.ID
+					lastId, _ := strconv.ParseInt(tweet.ID, 10, 64)
+					lastTweetID = strconv.FormatInt(lastId-1, 10)
 					channel <- &Result{Tweet: *tweet}
 				}
 				tweetsNbr++
