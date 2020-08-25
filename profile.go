@@ -33,12 +33,13 @@ type Profile struct {
 
 // GetProfile return parsed user profile.
 func GetProfile(username string) (Profile, error) {
-	url := "https://twitter.com/" + username
+	url := "https://mobile.twitter.com/" + username
 
-	req, err := newRequest(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return Profile{}, err
 	}
+	req.Header.Set("Accept-Language", "en-US")
 
 	resp, err := http.DefaultClient.Do(req)
 	if resp == nil {
@@ -55,41 +56,31 @@ func GetProfile(username string) (Profile, error) {
 		return Profile{}, err
 	}
 
-	// parse location
-	location := strings.TrimSpace(doc.Find(".ProfileHeaderCard-locationText.u-dir").First().Text())
-
 	// parse join date text
-	joined, _ := time.Parse("3:4 PM - 2 Jan 2006", doc.Find(".ProfileHeaderCard-joinDateText.u-dir").First().AttrOr("title", ""))
+	screenName := doc.Find(".screen-name").First().Text()
 
 	// check is username valid
-	if location == "" && joined.IsZero() {
+	if screenName == "" {
 		return Profile{}, fmt.Errorf("either @%s does not exist or is private", username)
 	}
 
 	return Profile{
-		Avatar:         doc.Find(".ProfileAvatar-image").First().AttrOr("src", ""),
-		Banner:         doc.Find(".ProfileCanopy-headerBg img").First().AttrOr("src", ""),
-		Biography:      doc.Find(".ProfileHeaderCard-bio.u-dir").First().Text(),
-		Birthday:       strings.ReplaceAll(strings.TrimSpace(doc.Find(".ProfileHeaderCard-birthdateText.u-dir").First().Text()), "Born ", ""),
-		FollowersCount: parseCount(doc.Find(".ProfileNav-item--followers > a > span.ProfileNav-value").First()),
-		FollowingCount: parseCount(doc.Find(".ProfileNav-item--following > a > span.ProfileNav-value").First()),
-		IsPrivate:      doc.Find(".ProfileHeaderCard-badges .Icon--protected").First().Text() != "",
-		IsVerified:     doc.Find(".ProfileHeaderCard-badges .Icon--verified").First().Text() != "",
-		Joined:         &joined,
-		LikesCount:     parseCount(doc.Find(".ProfileNav-item--favorites > a > span.ProfileNav-value").First()),
-		Location:       location,
-		Name:           doc.Find(".ProfileHeaderCard-nameLink").First().Text(),
-		TweetsCount:    parseCount(doc.Find(".ProfileNav-item--tweets.is-active > a > span.ProfileNav-value").First()),
-		URL:            url,
-		UserID:         doc.Find(".ProfileNav").First().AttrOr("data-user-id", ""),
-		Username:       doc.Find(".u-linkComplex-target").First().Text(),
-		Website:        strings.TrimSpace(doc.Find(".ProfileHeaderCard-urlText.u-dir > a").First().AttrOr("title", "")),
+		Avatar:         doc.Find("td.avatar > img").First().AttrOr("src", ""),
+		Biography:      strings.TrimSpace(doc.Find(".bio").First().Text()),
+		FollowersCount: parseCount(doc.Find("table.profile-stats > tbody > tr > td:nth-child(3) > a > div.statnum").First().Text()),
+		FollowingCount: parseCount(doc.Find("table.profile-stats > tbody > tr > td:nth-child(2) > a > div.statnum").First().Text()),
+		IsPrivate:      strings.Contains(doc.Find("div.fullname > a.badge > img").First().AttrOr("src", ""), "protected"),
+		IsVerified:     strings.Contains(doc.Find("div.fullname > a.badge > img").First().AttrOr("src", ""), "verified"),
+		Location:       strings.TrimSpace(doc.Find(".location").First().Text()),
+		Name:           strings.TrimSpace(doc.Find(".fullname").First().Text()),
+		TweetsCount:    parseCount(doc.Find("table.profile-stats > tbody > tr > td:nth-child(1) > div.statnum").First().Text()),
+		URL:            "https://twitter.com/" + screenName,
+		Username:       screenName,
+		Website:        strings.TrimSpace(doc.Find("div.url > div > a").First().AttrOr("data-url", "")),
 	}, nil
 }
 
-func parseCount(sel *goquery.Selection) (i int) {
-	if str, exists := sel.Attr("data-count"); exists {
-		i, _ = strconv.Atoi(str)
-	}
+func parseCount(str string) (i int) {
+	i, _ = strconv.Atoi(strings.Replace(str, ",", "", -1))
 	return
 }
