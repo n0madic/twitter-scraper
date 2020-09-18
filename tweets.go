@@ -3,7 +3,7 @@ package twitterscraper
 import (
 	"context"
 	"fmt"
-	"regexp"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -61,8 +61,7 @@ func GetTweets(ctx context.Context, user string, maxTweetsNbr int) <-chan *Resul
 			default:
 			}
 
-			query := fmt.Sprintf("(from:%s)", user)
-			tweets, err := FetchSearchTweets(query, lastTweetID)
+			tweets, err := FetchTweets(user, lastTweetID)
 			if err != nil {
 				channel <- &Result{Error: err}
 				return
@@ -94,24 +93,22 @@ func GetTweets(ctx context.Context, user string, maxTweetsNbr int) <-chan *Resul
 
 // FetchTweets gets tweets for a given user, via the Twitter frontend API.
 func FetchTweets(user string, last string) ([]*Tweet, error) {
-
-	req, err := newRequest(fmt.Sprintf(ajaxURL, user))
+	req, err := http.NewRequest("GET", "https://syndication.twitter.com/timeline/profile", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Referer", "https://twitter.com/"+user)
+	req.Header.Set("Referer", "https://publish.twitter.com/")
 
 	q := req.URL.Query()
-	q.Add("include_available_features", "1")
-	q.Add("include_entities", "1")
-	q.Add("include_new_items_bar", "true")
+	q.Add("screen_name", user)
+	q.Add("with_replies", "true")
 	if last != "" {
 		q.Add("max_position", last)
 	}
 	req.URL.RawQuery = q.Encode()
 
-	htm, err := getHTMLFromJSON(req, "items_html")
+	htm, err := getHTMLFromJSON(req, "body")
 	if err != nil {
 		return nil, err
 	}
@@ -132,39 +129,39 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 		return nil, err
 	}
 
-	doc.Find(".stream-item").Each(func(i int, s *goquery.Selection) {
+	doc.Find(".timeline-Tweet").Each(func(i int, s *goquery.Selection) {
 		var tweet Tweet
-		timeStr, ok := s.Find("._timestamp").Attr("data-time")
+		timeStr, ok := s.Find(".timeline-Tweet-metadata > a > time").Attr("datetime")
 		if ok {
-			tweet.Timestamp, _ = strconv.ParseInt(timeStr, 10, 64)
-			tweet.TimeParsed = time.Unix(tweet.Timestamp, 0)
-			tweet.ID = s.AttrOr("data-item-id", "")
-			tweet.UserID = s.Find(".tweet").AttrOr("data-user-id", "")
-			tweet.Username = s.Find(".tweet").AttrOr("data-screen-name", "")
+			tweet.TimeParsed, _ = time.Parse("2006-01-02T15:04:05-0700", timeStr)
+			tweet.Timestamp = tweet.TimeParsed.Unix()
+			tweet.ID = s.AttrOr("data-tweet-id", "")
+			//tweet.UserID = s.Find(".tweet").AttrOr("data-user-id", "")
+			tweet.Username = strings.TrimPrefix(s.Find(".TweetAuthor-screenName").AttrOr("title", ""), "@")
 			tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", tweet.Username, tweet.ID)
-			tweet.Text = s.Find(".tweet-text").Text()
-			tweet.HTML, _ = s.Find(".tweet-text").Html()
-			s.Find(".js-retweet-text, .QuoteTweet").Each(func(i int, c *goquery.Selection) {
+			tweet.Text = s.Find(".timeline-Tweet-text").Text()
+			tweet.HTML, _ = s.Find(".timeline-Tweet-text").Html()
+			s.Find(".timeline-Tweet-retweetCredit").Each(func(i int, c *goquery.Selection) {
 				tweet.IsRetweet = true
 			})
-			s.Find("span.js-pinned-text").Each(func(i int, c *goquery.Selection) {
-				tweet.IsPin = true
-			})
-			s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
-				txt := strings.TrimSpace(c.Text())
-				switch {
-				case strings.HasSuffix(txt, "likes"):
-					l := strings.Split(txt, " ")
-					tweet.Likes, _ = strconv.Atoi(l[0])
-				case strings.HasSuffix(txt, "replies"):
-					l := strings.Split(txt, " ")
-					tweet.Replies, _ = strconv.Atoi(l[0])
-				case strings.HasSuffix(txt, "retweets"):
-					l := strings.Split(txt, " ")
-					tweet.Retweets, _ = strconv.Atoi(l[0])
-				}
-			})
-			s.Find(".twitter-hashtag").Each(func(i int, h *goquery.Selection) {
+			// s.Find("span.js-pinned-text").Each(func(i int, c *goquery.Selection) {
+			// 	tweet.IsPin = true
+			// })
+			// s.Find(".ProfileTweet-actionCount").Each(func(i int, c *goquery.Selection) {
+			// 	txt := strings.TrimSpace(c.Text())
+			// 	switch {
+			// 	case strings.HasSuffix(txt, "likes"):
+			// 		l := strings.Split(txt, " ")
+			// 		tweet.Likes, _ = strconv.Atoi(l[0])
+			// 	case strings.HasSuffix(txt, "replies"):
+			// 		l := strings.Split(txt, " ")
+			// 		tweet.Replies, _ = strconv.Atoi(l[0])
+			// 	case strings.HasSuffix(txt, "retweets"):
+			// 		l := strings.Split(txt, " ")
+			// 		tweet.Retweets, _ = strconv.Atoi(l[0])
+			// 	}
+			// })
+			s.Find(".hashtag > span.PrettyLink-value").Each(func(i int, h *goquery.Selection) {
 				tweet.Hashtags = append(tweet.Hashtags, h.Text())
 			})
 			s.Find("a.twitter-timeline-link:not(.u-hidden)").Each(func(i int, u *goquery.Selection) {
@@ -172,21 +169,21 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 					tweet.URLs = append(tweet.URLs, link)
 				}
 			})
-			s.Find(".AdaptiveMedia-photoContainer").Each(func(i int, p *goquery.Selection) {
-				if link, ok := p.Attr("data-image-url"); ok {
+			s.Find(".NaturalImage-image").Each(func(i int, p *goquery.Selection) {
+				if link, ok := p.Attr("data-image"); ok {
 					tweet.Photos = append(tweet.Photos, link)
 				}
 			})
-			s.Find(".PlayableMedia-player").Each(func(i int, v *goquery.Selection) {
-				if style, ok := v.Attr("style"); ok {
-					if strings.Contains(style, "background") {
-						match := regexp.MustCompile(`https:\/\/.+\/([\w-]+)\.(?:jpg|png)`).FindStringSubmatch(style)
-						if len(match) == 2 {
-							tweet.Videos = append(tweet.Videos, Video{ID: match[1], Preview: match[0]})
-						}
-					}
-				}
-			})
+			// s.Find(".PlayableMedia-player").Each(func(i int, v *goquery.Selection) {
+			// 	if style, ok := v.Attr("style"); ok {
+			// 		if strings.Contains(style, "background") {
+			// 			match := regexp.MustCompile(`https:\/\/.+\/([\w-]+)\.(?:jpg|png)`).FindStringSubmatch(style)
+			// 			if len(match) == 2 {
+			// 				tweet.Videos = append(tweet.Videos, Video{ID: match[1], Preview: match[0]})
+			// 			}
+			// 		}
+			// 	}
+			// })
 			tweets = append(tweets, &tweet)
 		}
 	})
