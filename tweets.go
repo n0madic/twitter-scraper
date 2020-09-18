@@ -170,7 +170,7 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 				}
 			})
 			s.Find(".NaturalImage-image").Each(func(i int, p *goquery.Selection) {
-				if link, ok := p.Attr("data-image"); ok {
+				if link, ok := p.Attr("src"); ok {
 					tweet.Photos = append(tweet.Photos, link)
 				}
 			})
