@@ -25,12 +25,6 @@ func TestGetSearchTweets(t *testing.T) {
 			if tweet.Text == "" {
 				t.Error("Expected tweet Text is not empty")
 			}
-			if tweet.TimeParsed.IsZero() {
-				t.Error("Expected tweet TimeParsed is not zero")
-			}
-			if tweet.Timestamp == 0 {
-				t.Error("Expected tweet Timestamp is greater than zero")
-			}
 		}
 	}
 

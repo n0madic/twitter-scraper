@@ -3,18 +3,22 @@ package twitterscraper
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
-	"strconv"
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
-const ajaxSearchURL = "https://twitter.com/i/search/timeline?q=%s"
+const mobileSearchURL = "https://mobile.twitter.com/search?q=%s"
 
 // SearchTweets returns channel with tweets for a given search query
 func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *Result {
 	channel := make(chan *Result)
 	go func(query string) {
 		defer close(channel)
-		var maxId string
+		var nextCursor string
 		tweetsNbr := 0
 		for tweetsNbr < maxTweetsNbr {
 			select {
@@ -24,7 +28,7 @@ func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *R
 			default:
 			}
 
-			tweets, err := FetchSearchTweets(query, maxId)
+			tweets, next, err := FetchSearchTweets(query, nextCursor)
 			if err != nil {
 				channel <- &Result{Error: err}
 				return
@@ -43,8 +47,7 @@ func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *R
 				}
 
 				if tweetsNbr < maxTweetsNbr {
-					lastId, _ := strconv.ParseInt(tweet.ID, 10, 64)
-					maxId = strconv.FormatInt(lastId-1, 10)
+					nextCursor = next
 					channel <- &Result{Tweet: *tweet}
 				}
 				tweetsNbr++
@@ -55,35 +58,73 @@ func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *R
 }
 
 // FetchSearchTweets gets tweets for a given search query, via the Twitter frontend API
-func FetchSearchTweets(query, maxId string) ([]*Tweet, error) {
-	if maxId != "" {
-		query = query + " max_id:" + maxId
+func FetchSearchTweets(query, nextCursor string) ([]*Tweet, string, error) {
+	url := fmt.Sprintf(mobileSearchURL, url.PathEscape(query))
+	if nextCursor != "" {
+		url = "https://mobile.twitter.com" + nextCursor
 	}
 
-	req, err := newRequest(fmt.Sprintf(ajaxSearchURL, url.PathEscape(query)))
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	req.Header.Set("Referer", "https://twitter.com/search/timeline")
+	req.Header.Set("Referer", "https://mobile.twitter.com/")
+	req.Header.Set("User-Agent", "Opera/9.80 (J2ME/MIDP; Opera Mini/5.1.21214/28.2725; U; ru) Presto/2.8.119 Version/11.10")
 
-	q := req.URL.Query()
-	q.Add("f", "tweets")
-	q.Add("include_available_features", "1")
-	q.Add("include_entities", "1")
-	q.Add("include_new_items_bar", "true")
+	resp, err := http.DefaultClient.Do(req)
+	if resp == nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
 
-	req.URL.RawQuery = q.Encode()
+	if resp.StatusCode != http.StatusOK {
+		return nil, "", fmt.Errorf("response status: %s", resp.Status)
+	}
 
-	htm, err := getHTMLFromJSON(req, "items_html")
+	return readTweetsFromMobileHTML(resp.Body)
+}
+
+func readTweetsFromMobileHTML(htm io.ReadCloser) ([]*Tweet, string, error) {
+	var tweets []*Tweet
+
+	doc, err := goquery.NewDocumentFromReader(htm)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	tweets, err := readTweetsFromHTML(htm)
-	if err != nil {
-		return nil, err
-	}
+	doc.Find("table.tweet").Each(func(i int, s *goquery.Selection) {
+		var tweet Tweet
+		tweetID, ok := s.Find(".tweet-text").Attr("data-id")
+		if ok {
+			tweet.ID = tweetID
+			tweet.Username = strings.TrimPrefix(strings.TrimSpace(s.Find("td.user-info > a > div.username").Text()), "@")
+			tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", tweet.Username, tweet.ID)
+			tweet.Text = strings.TrimSpace(s.Find(".tweet-text").Text())
+			tweet.HTML, _ = s.Find(".tweet-text").Html()
+			tweet.HTML = strings.TrimSpace(tweet.HTML)
+			s.Find("td.tweet-social-context > span").Each(func(i int, c *goquery.Selection) {
+				tweet.IsRetweet = true
+			})
+			s.Find(".twitter-hashtag").Each(func(i int, h *goquery.Selection) {
+				tweet.Hashtags = append(tweet.Hashtags, h.Text())
+			})
+			s.Find("a.tco-link:not(.u-hidden)").Each(func(i int, u *goquery.Selection) {
+				if link, ok := u.Attr("data-expanded-url"); ok {
+					tweet.URLs = append(tweet.URLs, link)
+				}
+			})
+			s.Find("div.media > img").Each(func(i int, p *goquery.Selection) {
+				if link, ok := p.Attr("src"); ok {
+					tweet.Photos = append(tweet.Photos, strings.TrimSuffix(link, ":small"))
+				}
+			})
 
-	return tweets, nil
+			tweets = append(tweets, &tweet)
+		}
+	})
+
+	nextCursor := doc.Find("div.w-button-more > a").AttrOr("href", "")
+
+	return tweets, nextCursor, nil
 }
