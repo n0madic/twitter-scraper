@@ -164,7 +164,7 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 			s.Find(".hashtag > span.PrettyLink-value").Each(func(i int, h *goquery.Selection) {
 				tweet.Hashtags = append(tweet.Hashtags, h.Text())
 			})
-			s.Find("a.twitter-timeline-link:not(.u-hidden)").Each(func(i int, u *goquery.Selection) {
+			s.Find("a.link:not(.u-hidden)").Each(func(i int, u *goquery.Selection) {
 				if link, ok := u.Attr("data-expanded-url"); ok {
 					tweet.URLs = append(tweet.URLs, link)
 				}
