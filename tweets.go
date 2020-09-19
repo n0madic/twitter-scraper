@@ -170,8 +170,8 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 				}
 			})
 			s.Find(".NaturalImage-image").Each(func(i int, p *goquery.Selection) {
-				if link, ok := p.Attr("src"); ok {
-					tweet.Photos = append(tweet.Photos, link)
+				if link, ok := p.Attr("data-image"); ok {
+					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=large")
 				}
 			})
 			// s.Find(".PlayableMedia-player").Each(func(i int, v *goquery.Selection) {
