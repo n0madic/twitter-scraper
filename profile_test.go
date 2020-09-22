@@ -11,14 +11,14 @@ func TestGetProfile(t *testing.T) {
 	// loc := time.FixedZone("UTC", 0)
 	// joined := time.Date(2007, 02, 20, 6, 35, 0, 0, loc)
 	sample := Profile{
-		Avatar: "https://pbs.twimg.com/profile_images/1293262551057420293/4QMAmava_normal.jpg",
+		Avatar: "https://pbs.twimg.com/profile_images/1308010958862905345/-SGZioPb_normal.jpg",
 		// Banner:     "https://pbs.twimg.com/profile_banners/783214/1596041768/1500x500",
-		Biography: "#BlackLivesMatter\n#BlackTransLivesMatter",
+		Biography: "It’s not like we’re asking you to wear pants",
 		// Birthday:   "March 21",
 		IsPrivate:  false,
 		IsVerified: true,
 		// Joined:     &joined,
-		Location: "everywhere",
+		Location: "everywhere, wearing a mask",
 		Name:     "Twitter",
 		URL:      "https://twitter.com/Twitter",
 		// UserID:     "783214",
@@ -31,7 +31,7 @@ func TestGetProfile(t *testing.T) {
 		t.Error(err)
 	}
 
-	var cmpOptions = cmp.Options{
+	cmpOptions := cmp.Options{
 		cmpopts.IgnoreFields(Profile{}, "FollowersCount"),
 		cmpopts.IgnoreFields(Profile{}, "FollowingCount"),
 		cmpopts.IgnoreFields(Profile{}, "LikesCount"),
