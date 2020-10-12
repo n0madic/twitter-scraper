@@ -136,7 +136,7 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 			tweet.TimeParsed, _ = time.Parse("2006-01-02T15:04:05-0700", timeStr)
 			tweet.Timestamp = tweet.TimeParsed.Unix()
 			tweet.ID = s.AttrOr("data-tweet-id", "")
-			//tweet.UserID = s.Find(".tweet").AttrOr("data-user-id", "")
+			// tweet.UserID = s.Find(".tweet").AttrOr("data-user-id", "")
 			tweet.Username = strings.TrimPrefix(s.Find(".TweetAuthor-screenName").AttrOr("title", ""), "@")
 			tweet.PermanentURL = fmt.Sprintf("https://twitter.com/%s/status/%s", tweet.Username, tweet.ID)
 			tweet.Text = s.Find(".timeline-Tweet-text").Text()
@@ -171,12 +171,12 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 			})
 			s.Find(".NaturalImage-image").Each(func(i int, p *goquery.Selection) {
 				if link, ok := p.Attr("data-image"); ok {
-					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=large")
+					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=orig")
 				}
 			})
 			s.Find(".CroppedImage-image").Each(func(i int, p *goquery.Selection) {
 				if link, ok := p.Attr("data-image"); ok {
-					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=large")
+					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=orig")
 				}
 			})
 			// s.Find(".PlayableMedia-player").Each(func(i int, v *goquery.Selection) {
