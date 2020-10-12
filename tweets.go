@@ -174,6 +174,11 @@ func readTweetsFromHTML(htm *strings.Reader) ([]*Tweet, error) {
 					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=large")
 				}
 			})
+			s.Find(".CroppedImage-image").Each(func(i int, p *goquery.Selection) {
+				if link, ok := p.Attr("data-image"); ok {
+					tweet.Photos = append(tweet.Photos, link+"?format=jpg&name=large")
+				}
+			})
 			// s.Find(".PlayableMedia-player").Each(func(i int, v *goquery.Selection) {
 			// 	if style, ok := v.Attr("style"); ok {
 			// 		if strings.Contains(style, "background") {
