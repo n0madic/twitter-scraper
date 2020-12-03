@@ -2,10 +2,30 @@ package twitterscraper
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
+	"regexp"
 	"strings"
 )
+
+//HttpProxy Public variable for Http proxy
+var HTTPProxy *url.URL
+
+//SetProxy set http proxy
+func SetProxy(Proxy string) error {
+	match, _ := regexp.MatchString("http.+", Proxy)
+	if !match {
+		return errors.New("only support http protocol")
+	}
+	urlproxy, err := url.Parse(Proxy)
+	if err != nil {
+		return err
+	}
+	HTTPProxy = urlproxy
+	return nil
+}
 
 func newRequest(url string) (*http.Request, error) {
 	req, err := http.NewRequest("GET", url, nil)
