@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -64,6 +66,18 @@ func FetchSearchTweets(query, nextCursor string) ([]*Tweet, string, error) {
 		url = "https://mobile.twitter.com" + nextCursor
 	}
 
+	client := http.DefaultClient
+	if HTTPProxy != nil {
+		client = &http.Client{
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(HTTPProxy),
+				DialContext: (&net.Dialer{
+					Timeout: 10 * time.Second,
+				}).DialContext,
+			},
+		}
+	}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, "", err
@@ -72,7 +86,7 @@ func FetchSearchTweets(query, nextCursor string) ([]*Tweet, string, error) {
 	req.Header.Set("Referer", "https://mobile.twitter.com/")
 	req.Header.Set("User-Agent", "Opera/9.80 (J2ME/MIDP; Opera Mini/5.1.21214/28.2725; U; ru) Presto/2.8.119 Version/11.10")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if resp == nil {
 		return nil, "", err
 	}

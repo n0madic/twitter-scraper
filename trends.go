@@ -2,8 +2,10 @@ package twitterscraper
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -12,13 +14,25 @@ const trendsURL = "https://mobile.twitter.com/trends"
 
 // GetTrends return list of trends.
 func GetTrends() ([]string, error) {
+	client := http.DefaultClient
+	if HTTPProxy != nil {
+		client = &http.Client{
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(HTTPProxy),
+				DialContext: (&net.Dialer{
+					Timeout: 10 * time.Second,
+				}).DialContext,
+			},
+		}
+	}
+
 	req, err := http.NewRequest("GET", trendsURL, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Accept-Language", "en-US")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if resp == nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package twitterscraper
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,13 +36,25 @@ type Profile struct {
 func GetProfile(username string) (Profile, error) {
 	url := "https://mobile.twitter.com/" + username
 
+	client := http.DefaultClient
+	if HTTPProxy != nil {
+		client = &http.Client{
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(HTTPProxy),
+				DialContext: (&net.Dialer{
+					Timeout: 10 * time.Second,
+				}).DialContext,
+			},
+		}
+	}
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return Profile{}, err
 	}
 	req.Header.Set("Accept-Language", "en-US")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if resp == nil {
 		return Profile{}, err
 	}

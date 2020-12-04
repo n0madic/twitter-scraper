@@ -62,7 +62,28 @@ func main() {
     }
 }
 ```
+#### With http proxy
 
+```golang
+package main
+
+import (
+    "context"
+    "fmt"
+    twitterscraper "github.com/n0madic/twitter-scraper"
+)
+
+func main() {
+    twitterscraper.SetProxy("http://localhost:16379")
+    for tweet := range twitterscraper.SearchTweets(context.Background(),
+        "twitter scraper data -filter:retweets", 50) {
+        if tweet.Error != nil {
+            panic(tweet.Error)
+        }
+        fmt.Println(tweet.HTML)
+    }
+}
+```
 The search ends if we have 50 tweets.
 
 See [Rules and filtering](https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standard-operators) for build standard queries.
