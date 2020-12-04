@@ -13,7 +13,7 @@ import (
 //HttpProxy Public variable for Http proxy
 var HTTPProxy *url.URL
 
-//SetProxy set http proxy
+//SetProxy set http proxy format `http://HOST:PORT`
 func SetProxy(Proxy string) error {
 	match, _ := regexp.MatchString("http.+", Proxy)
 	if !match {
