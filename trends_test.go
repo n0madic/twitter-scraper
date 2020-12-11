@@ -10,7 +10,13 @@ func TestGetTrends(t *testing.T) {
 		t.Error(err)
 	}
 
-	if len(trends) != 10 {
-		t.Errorf("Expected 10 trends, got %d: %#v", len(trends), trends)
+	if len(trends) != 20 {
+		t.Errorf("Expected 20 trends, got %d: %#v", len(trends), trends)
+	}
+
+	for _, trend := range trends {
+		if trend == "" {
+			t.Error("Expected trend is not empty")
+		}
 	}
 }

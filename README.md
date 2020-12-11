@@ -1,7 +1,5 @@
 # Twitter Scraper
 
-Golang implementation of python library <https://github.com/bisguzar/twitter-scraper>
-
 Twitter's API is annoying to work with, and has lots of limitations —
 luckily their frontend (JavaScript) has it's own API, which I reverse-engineered.
 No API rate limits. No tokens needed. No restrictions. Extremely fast.
@@ -32,12 +30,12 @@ func main() {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
-        fmt.Println(tweet.HTML)
+        fmt.Println(tweet.Text)
     }
 }
 ```
 
-It appears you can ask for up to 50 tweets.
+It appears you can ask for up to 50 tweets (limit ~3200 tweets).
 
 ### Search tweets by query standard operators
 
@@ -58,32 +56,11 @@ func main() {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
-        fmt.Println(tweet.HTML)
+        fmt.Println(tweet.Text)
     }
 }
 ```
-#### With http proxy
 
-```golang
-package main
-
-import (
-    "context"
-    "fmt"
-    twitterscraper "github.com/n0madic/twitter-scraper"
-)
-
-func main() {
-    twitterscraper.SetProxy("http://localhost:16379")
-    for tweet := range twitterscraper.SearchTweets(context.Background(),
-        "twitter scraper data -filter:retweets", 50) {
-        if tweet.Error != nil {
-            panic(tweet.Error)
-        }
-        fmt.Println(tweet.HTML)
-    }
-}
-```
 The search ends if we have 50 tweets.
 
 See [Rules and filtering](https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standard-operators) for build standard queries.
@@ -124,4 +101,16 @@ func main() {
     }
     fmt.Println(trends)
 }
+```
+
+### Use http proxy
+
+```golang
+twitterscraper.SetProxy("http://localhost:3128")
+```
+
+### Load timeline with tweet replies
+
+```golang
+twitterscraper.IncludeReplies = true
 ```
