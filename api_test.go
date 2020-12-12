@@ -5,16 +5,18 @@ import (
 )
 
 func TestGetGuestToken(t *testing.T) {
-	if err := GetGuestToken(); err != nil {
+	scraper := New()
+	if err := scraper.GetGuestToken(); err != nil {
 		t.Errorf("getGuestToken() error = %v", err)
 	}
-	if guestToken == "" {
+	if scraper.guestToken == "" {
 		t.Error("Expected non-empty guestToken")
 	}
 }
 
 func TestGetUserIDByScreenName(t *testing.T) {
-	userID, err := GetUserIDByScreenName("Twitter")
+	scraper := New()
+	userID, err := scraper.GetUserIDByScreenName("Twitter")
 	if err != nil {
 		t.Errorf("getUserByScreenName() error = %v", err)
 	}

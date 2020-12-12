@@ -2,52 +2,14 @@ package twitterscraper
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"net"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
 )
 
-var (
-	// IncludeReplies enable tweet reply
-	IncludeReplies bool
-	// HTTPProxy Public variable for Http proxy
-	HTTPProxy *url.URL
-)
-
-// SetProxy set http proxy format `http://HOST:PORT`
-func SetProxy(proxy string) error {
-	if !strings.HasPrefix(proxy, "http://") {
-		return errors.New("only support http protocol")
-	}
-	urlproxy, err := url.Parse(proxy)
-	if err != nil {
-		return err
-	}
-	HTTPProxy = urlproxy
-	return nil
-}
-
-func newHTTPClient() *http.Client {
-	client := &http.Client{Timeout: 10 * time.Second}
-	if HTTPProxy != nil {
-		client = &http.Client{
-			Transport: &http.Transport{
-				Proxy: http.ProxyURL(HTTPProxy),
-				DialContext: (&net.Dialer{
-					Timeout: 10 * time.Second,
-				}).DialContext,
-			},
-		}
-	}
-	return client
-}
-
-func newRequest(method string, url string) (*http.Request, error) {
+func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, err
@@ -75,7 +37,7 @@ func newRequest(method string, url string) (*http.Request, error) {
 	q.Add("include_ext_media_availability", "true")
 	q.Add("send_error_codes", "true")
 	q.Add("simple_quoted_tweet", "true")
-	q.Add("include_tweet_replies", strconv.FormatBool(IncludeReplies))
+	q.Add("include_tweet_replies", strconv.FormatBool(s.includeReplies))
 	q.Add("ext", "mediaStats,highlightedLabel")
 	req.URL.RawQuery = q.Encode()
 

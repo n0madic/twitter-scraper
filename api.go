@@ -18,23 +18,22 @@ type user struct {
 	} `json:"data"`
 }
 
-var (
-	guestToken string
-	cacheIDs   sync.Map
-)
+// Global cache for user IDs
+var cacheIDs sync.Map
 
-func requestAPI(req *http.Request, target interface{}) error {
-	if guestToken == "" {
-		err := GetGuestToken()
+// RequestAPI get JSON from frontend API and decodes it
+func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
+	if s.guestToken == "" {
+		err := s.GetGuestToken()
 		if err != nil {
 			return err
 		}
 	}
 
 	req.Header.Set("Authorization", "Bearer "+bearerToken)
-	req.Header.Set("X-Guest-Token", guestToken)
+	req.Header.Set("X-Guest-Token", s.guestToken)
 
-	resp, err := newHTTPClient().Do(req)
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -43,15 +42,15 @@ func requestAPI(req *http.Request, target interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
-// GetGuestToken from API
-func GetGuestToken() error {
+// GetGuestToken from Twitter API
+func (s *Scraper) GetGuestToken() error {
 	req, err := http.NewRequest("POST", "https://api.twitter.com/1.1/guest/activate.json", nil)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Authorization", "Bearer "+bearerToken)
 
-	resp, err := newHTTPClient().Do(req)
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -70,7 +69,7 @@ func GetGuestToken() error {
 		return err
 	}
 	var ok bool
-	if guestToken, ok = jsn["guest_token"].(string); !ok {
+	if s.guestToken, ok = jsn["guest_token"].(string); !ok {
 		return fmt.Errorf("guest_token not found")
 	}
 
@@ -78,7 +77,7 @@ func GetGuestToken() error {
 }
 
 // GetUserIDByScreenName from API
-func GetUserIDByScreenName(screenName string) (string, error) {
+func (s *Scraper) GetUserIDByScreenName(screenName string) (string, error) {
 	id, ok := cacheIDs.Load(screenName)
 	if ok {
 		return id.(string), nil
@@ -90,7 +89,7 @@ func GetUserIDByScreenName(screenName string) (string, error) {
 		return "", err
 	}
 
-	err = requestAPI(req, &jsn)
+	err = s.RequestAPI(req, &jsn)
 	if err != nil {
 		return "", err
 	}

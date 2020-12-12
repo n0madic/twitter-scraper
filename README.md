@@ -26,7 +26,8 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", 50) {
+    scraper := twitterscraper.New()
+    for tweet := range scraper.GetTweets(context.Background(), "Twitter", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
         }
@@ -51,7 +52,8 @@ import (
 )
 
 func main() {
-    for tweet := range twitterscraper.SearchTweets(context.Background(),
+    scraper := twitterscraper.New()
+    for tweet := range scraper.SearchTweets(context.Background(),
         "twitter scraper data -filter:retweets", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
@@ -76,7 +78,8 @@ import (
 )
 
 func main() {
-    profile, err := twitterscraper.GetProfile("Twitter")
+    scraper := twitterscraper.New()
+    profile, err := scraper.GetProfile("Twitter")
     if err != nil {
         panic(err)
     }
@@ -95,7 +98,8 @@ import (
 )
 
 func main() {
-    trends, err := twitterscraper.GetTrends()
+    scraper := twitterscraper.New()
+    trends, err := scraper.GetTrends()
     if err != nil {
         panic(err)
     }
@@ -106,11 +110,36 @@ func main() {
 ### Use http proxy
 
 ```golang
-twitterscraper.SetProxy("http://localhost:3128")
+err := scraper.SetProxy("http://localhost:3128")
+if err != nil {
+    panic(err)
+}
 ```
 
 ### Load timeline with tweet replies
 
 ```golang
-twitterscraper.IncludeReplies = true
+scraper.WithReplies(true)
+```
+
+### Default Scraper (Ad hoc)
+
+In simple cases, you can use the default scraper without creating an object instance
+
+```golang
+import twitterscraper "github.com/n0madic/twitter-scraper"
+
+// for tweets
+twitterscraper.GetTweets(context.Background(), "Twitter", 50)
+// for tweets with replies
+twitterscraper.WithReplies(true).GetTweets(context.Background(), "Twitter", 50)
+
+// for search
+twitterscraper.SearchTweets(context.Background(), "twitter", 50)
+
+// for profile
+twitterscraper.GetProfile("Twitter")
+
+// for trends
+twitterscraper.GetTrends()
 ```

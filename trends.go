@@ -1,8 +1,8 @@
 package twitterscraper
 
 // GetTrends return list of trends.
-func GetTrends() ([]string, error) {
-	req, err := newRequest("GET", "https://twitter.com/i/api/2/guide.json")
+func (s *Scraper) GetTrends() ([]string, error) {
+	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/guide.json")
 	if err != nil {
 		return nil, err
 	}
@@ -15,7 +15,7 @@ func GetTrends() ([]string, error) {
 	req.URL.RawQuery = q.Encode()
 
 	var jsn timeline
-	err = requestAPI(req, &jsn)
+	err = s.RequestAPI(req, &jsn)
 	if err != nil {
 		return nil, err
 	}
@@ -26,4 +26,9 @@ func GetTrends() ([]string, error) {
 	}
 
 	return trends, nil
+}
+
+// GetTrends wrapper for default Scraper
+func GetTrends() ([]string, error) {
+	return defaultScraper.GetTrends()
 }

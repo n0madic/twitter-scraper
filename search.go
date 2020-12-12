@@ -7,18 +7,23 @@ import (
 )
 
 // SearchTweets returns channel with tweets for a given search query
+func (s *Scraper) SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *Result {
+	return getTimeline(ctx, query, maxTweetsNbr, s.FetchSearchTweets)
+}
+
+// SearchTweets wrapper for default Scraper
 func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *Result {
-	return getTimeline(ctx, query, maxTweetsNbr, FetchSearchTweets)
+	return defaultScraper.SearchTweets(ctx, query, maxTweetsNbr)
 }
 
 // FetchSearchTweets gets tweets for a given search query, via the Twitter frontend API
-func FetchSearchTweets(query string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
+func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
 	query = url.PathEscape(query)
 	if maxTweetsNbr > 200 {
 		maxTweetsNbr = 200
 	}
 
-	req, err := newRequest("GET", "https://twitter.com/i/api/2/search/adaptive.json")
+	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/search/adaptive.json")
 	if err != nil {
 		return nil, "", err
 	}
@@ -35,7 +40,7 @@ func FetchSearchTweets(query string, maxTweetsNbr int, cursor string) ([]*Tweet,
 	req.URL.RawQuery = q.Encode()
 
 	var timeline timeline
-	err = requestAPI(req, &timeline)
+	err = s.RequestAPI(req, &timeline)
 	if err != nil {
 		return nil, "", err
 	}

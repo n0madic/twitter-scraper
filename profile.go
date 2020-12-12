@@ -30,13 +30,13 @@ type Profile struct {
 }
 
 // GetProfile return parsed user profile.
-func GetProfile(username string) (Profile, error) {
-	userID, err := GetUserIDByScreenName(username)
+func (s *Scraper) GetProfile(username string) (Profile, error) {
+	userID, err := s.GetUserIDByScreenName(username)
 	if err != nil {
 		return Profile{}, err
 	}
 
-	req, err := newRequest("GET", "https://twitter.com/i/api/2/timeline/profile/"+userID+".json")
+	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/timeline/profile/"+userID+".json")
 	if err != nil {
 		return Profile{}, err
 	}
@@ -47,7 +47,7 @@ func GetProfile(username string) (Profile, error) {
 	req.URL.RawQuery = q.Encode()
 
 	var timeline timeline
-	err = requestAPI(req, &timeline)
+	err = s.RequestAPI(req, &timeline)
 	if err != nil {
 		return Profile{}, err
 	}
@@ -88,4 +88,9 @@ func GetProfile(username string) (Profile, error) {
 	}
 
 	return profile, nil
+}
+
+// GetProfile wrapper for default scraper
+func GetProfile(username string) (Profile, error) {
+	return defaultScraper.GetProfile(username)
 }
