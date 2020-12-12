@@ -1,6 +1,7 @@
 package twitterscraper
 
 import (
+	"crypto/tls"
 	"errors"
 	"net"
 	"net/http"
@@ -38,8 +39,8 @@ func WithReplies(b bool) *Scraper {
 
 // SetProxy set http proxy in the format `http://HOST:PORT`
 func (s *Scraper) SetProxy(proxy string) error {
-	if !strings.HasPrefix(proxy, "http://") {
-		return errors.New("only support http protocol")
+	if !strings.HasPrefix(proxy, "http") {
+		return errors.New("only support http(s) protocol")
 	}
 	urlproxy, err := url.Parse(proxy)
 	if err != nil {
@@ -47,7 +48,8 @@ func (s *Scraper) SetProxy(proxy string) error {
 	}
 	s.client = &http.Client{
 		Transport: &http.Transport{
-			Proxy: http.ProxyURL(urlproxy),
+			Proxy:        http.ProxyURL(urlproxy),
+			TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
 			DialContext: (&net.Dialer{
 				Timeout: 10 * time.Second,
 			}).DialContext,
