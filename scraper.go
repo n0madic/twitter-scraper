@@ -16,11 +16,11 @@ type Scraper struct {
 	includeReplies bool
 }
 
-var defaultScraper Scraper
+var defaultScraper *Scraper
 
 // New creates a Scraper object
-func New() Scraper {
-	return Scraper{
+func New() *Scraper {
+	return &Scraper{
 		client: &http.Client{Timeout: 10 * time.Second},
 	}
 }
