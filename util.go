@@ -193,12 +193,14 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 
 	var cursor string
 	var orderedTweets []*Tweet
-	for _, entry := range timeline.Timeline.Instructions[0].AddEntries.Entries {
-		if tweet, ok := tweets[entry.Content.Item.Content.Tweet.ID]; ok {
-			orderedTweets = append(orderedTweets, &tweet)
-		}
-		if entry.Content.Operation.Cursor.CursorType == "Bottom" {
-			cursor = entry.Content.Operation.Cursor.Value
+	if len(timeline.Timeline.Instructions) > 0 {
+		for _, entry := range timeline.Timeline.Instructions[0].AddEntries.Entries {
+			if tweet, ok := tweets[entry.Content.Item.Content.Tweet.ID]; ok {
+				orderedTweets = append(orderedTweets, &tweet)
+			}
+			if entry.Content.Operation.Cursor.CursorType == "Bottom" {
+				cursor = entry.Content.Operation.Cursor.Value
+			}
 		}
 	}
 	return orderedTweets, cursor
