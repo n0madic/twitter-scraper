@@ -4,9 +4,15 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+)
+
+var (
+	reHashtag    = regexp.MustCompile(`\B(\#[a-zA-Z]+\b)`)
+	reTwitterURL = regexp.MustCompile(`https:(\/\/t\.co\/([A-Za-z0-9]|[A-Za-z]){10})`)
 )
 
 func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
@@ -102,11 +108,13 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 			UserID:       tweet.UserIDStr,
 			Username:     username,
 		}
+
 		tm, err := time.Parse(time.RubyDate, tweet.CreatedAt)
 		if err == nil {
 			tw.TimeParsed = tm
 			tw.Timestamp = tm.Unix()
 		}
+
 		if tweet.QuotedStatusIDStr != "" {
 			tw.IsQuoted = true
 		}
@@ -116,12 +124,14 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 		if tweet.RetweetedStatusIDStr != "" {
 			tw.IsRetweet = true
 		}
+
 		for _, pinned := range timeline.GlobalObjects.Users[tweet.UserIDStr].PinnedTweetIdsStr {
 			if tweet.ConversationIDStr == pinned {
 				tw.IsPin = true
 				break
 			}
 		}
+
 		for _, hash := range tweet.Entities.Hashtags {
 			tw.Hashtags = append(tw.Hashtags, hash.Text)
 		}
@@ -148,6 +158,29 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 		for _, url := range tweet.Entities.URLs {
 			tw.URLs = append(tw.URLs, url.ExpandedURL)
 		}
+
+		tw.HTML = tweet.FullText
+		tw.HTML = reHashtag.ReplaceAllStringFunc(tw.HTML, func(hashtag string) string {
+			return fmt.Sprintf(`<a href="https://twitter.com/hashtag/%s">%s</a>`,
+				strings.TrimPrefix(hashtag, "#"),
+				hashtag,
+			)
+		})
+		tw.HTML = reTwitterURL.ReplaceAllStringFunc(tw.HTML, func(tco string) string {
+			for _, entity := range tweet.Entities.URLs {
+				if tco == entity.URL {
+					return fmt.Sprintf(`<a href="%s">%s</a>`, entity.ExpandedURL, tco)
+				}
+			}
+			for _, entity := range tweet.Entities.Media {
+				if tco == entity.URL {
+					return fmt.Sprintf(`<a href="%s"><img src="%s"/></a>`, tco, entity.MediaURLHttps)
+				}
+			}
+			return tco
+		})
+		tw.HTML = strings.Replace(tw.HTML, "\n", "<br>", -1)
+
 		tweets[tw.ID] = tw
 	}
 
