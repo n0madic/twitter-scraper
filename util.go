@@ -13,6 +13,7 @@ import (
 var (
 	reHashtag    = regexp.MustCompile(`\B(\#[a-zA-Z]+\b)`)
 	reTwitterURL = regexp.MustCompile(`https:(\/\/t\.co\/([A-Za-z0-9]|[A-Za-z]){10})`)
+	reUsername   = regexp.MustCompile(`\B(\@[a-zA-Z]+\b)`)
 )
 
 func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
@@ -166,6 +167,12 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 				hashtag,
 			)
 		})
+		tw.HTML = reUsername.ReplaceAllStringFunc(tw.HTML, func(username string) string {
+			return fmt.Sprintf(`<a href="https://twitter.com/%s">%s</a>`,
+				strings.TrimPrefix(username, "@"),
+				username,
+			)
+		})
 		tw.HTML = reTwitterURL.ReplaceAllStringFunc(tw.HTML, func(tco string) string {
 			for _, entity := range tweet.Entities.URLs {
 				if tco == entity.URL {
@@ -174,7 +181,7 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 			}
 			for _, entity := range tweet.Entities.Media {
 				if tco == entity.URL {
-					return fmt.Sprintf(`<a href="%s"><img src="%s"/></a>`, tco, entity.MediaURLHttps)
+					return fmt.Sprintf(`<br><a href="%s"><img src="%s"/></a>`, tco, entity.MediaURLHttps)
 				}
 			}
 			return tco
