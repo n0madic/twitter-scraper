@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	reHashtag    = regexp.MustCompile(`\B(\#[a-zA-Z]+\b)`)
+	reHashtag    = regexp.MustCompile(`\B(\#\w+\b)`)
 	reTwitterURL = regexp.MustCompile(`https:(\/\/t\.co\/([A-Za-z0-9]|[A-Za-z]){10})`)
-	reUsername   = regexp.MustCompile(`\B(\@[a-zA-Z]+\b)`)
+	reUsername   = regexp.MustCompile(`\B(\@\S{1,15}\b)`)
 )
 
 func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
