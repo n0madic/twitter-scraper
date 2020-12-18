@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	reHashtag    = regexp.MustCompile(`\B(\#\w+\b)`)
+	reHashtag    = regexp.MustCompile(`\B(\#\S+\b)`)
 	reTwitterURL = regexp.MustCompile(`https:(\/\/t\.co\/([A-Za-z0-9]|[A-Za-z]){10})`)
 	reUsername   = regexp.MustCompile(`\B(\@\S{1,15}\b)`)
 )
