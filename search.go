@@ -37,6 +37,12 @@ func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor strin
 	if cursor != "" {
 		q.Add("cursor", cursor)
 	}
+	if s.searchMode == "live" {
+		q.Add("tweet_search_mode", s.searchMode)
+	} else {
+		q.Add("result_filter", s.searchMode)
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	var timeline timeline

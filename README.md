@@ -65,6 +65,11 @@ func main() {
 
 The search ends if we have 50 tweets.
 
+### Search tweet in realtime
+```golang
+scraper.SearchLive(true)
+```
+
 See [Rules and filtering](https://developer.twitter.com/en/docs/tweets/rules-and-filtering/overview/standard-operators) for build standard queries.
 
 ### Get profile
