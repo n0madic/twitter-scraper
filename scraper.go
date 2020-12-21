@@ -28,7 +28,7 @@ func New() *Scraper {
 }
 
 // SetSearchLive enable/disable realtime search
-func (s *Scraper) SearchLive(srctype bool) *Scraper {
+func (s *Scraper) SetSearchLive(srctype bool) *Scraper {
 	if srctype {
 		s.searchMode = "live"
 	}
@@ -36,12 +36,12 @@ func (s *Scraper) SearchLive(srctype bool) *Scraper {
 }
 
 // SetSearchLive wrapper for default SetSearchLive
-func SearchLive(srctype bool) *Scraper {
-	return defaultScraper.SearchLive(srctype)
+func SetSearchLive(srctype bool) *Scraper {
+	return defaultScraper.SetSearchLive(srctype)
 }
 
 // SetSearchPhotos filter search for photos only
-func (s *Scraper) SearchPhotos(srctype bool) *Scraper {
+func (s *Scraper) SetSearchPhotos(srctype bool) *Scraper {
 	if srctype {
 		s.searchMode = "image"
 	}
@@ -49,12 +49,12 @@ func (s *Scraper) SearchPhotos(srctype bool) *Scraper {
 }
 
 // SetSearchPhotos wrapper for default SetSearchPhotos
-func SearchPhotos(srctype bool) *Scraper {
-	return defaultScraper.SearchPhotos(srctype)
+func SetSearchPhotos(srctype bool) *Scraper {
+	return defaultScraper.SetSearchPhotos(srctype)
 }
 
 // SetSearchVideos filter search for videos only
-func (s *Scraper) SearchVideos(srctype bool) *Scraper {
+func (s *Scraper) SetSearchVideos(srctype bool) *Scraper {
 	if srctype {
 		s.searchMode = "video"
 	}
@@ -62,8 +62,8 @@ func (s *Scraper) SearchVideos(srctype bool) *Scraper {
 }
 
 // SetSearchVideos wrapper for default SetSearchVideos
-func SearchVideos(srctype bool) *Scraper {
-	return defaultScraper.SearchVideos(srctype)
+func SetSearchVideos(srctype bool) *Scraper {
+	return defaultScraper.SetSearchVideos(srctype)
 }
 
 // WithReplies enable/disable load timeline with tweet replies
