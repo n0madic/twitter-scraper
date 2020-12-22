@@ -13,15 +13,15 @@ func TestGetProfile(t *testing.T) {
 	joined := time.Date(2007, 02, 20, 14, 35, 54, 0, loc)
 	sample := Profile{
 		Avatar:    "https://pbs.twimg.com/profile_images/1308010958862905345/-SGZioPb_normal.jpg",
-		Banner:    "https://pbs.twimg.com/profile_banners/783214/1604501727",
-		Biography: "What's happening!?",
+		Banner:    "https://pbs.twimg.com/profile_banners/783214/1608559533",
+		Biography: "this year was not it",
 		//	Birthday:   "March 21",
 		IsPrivate:      false,
 		IsVerified:     true,
 		Joined:         &joined,
 		Location:       "everywhere",
 		Name:           "Twitter",
-		PinnedTweetIDs: []string{},
+		PinnedTweetIDs: []string{"1341069705889673217"},
 		URL:            "https://twitter.com/Twitter",
 		UserID:         "783214",
 		Username:       "Twitter",
