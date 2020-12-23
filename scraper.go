@@ -15,8 +15,7 @@ type Scraper struct {
 	client         *http.Client
 	guestToken     string
 	includeReplies bool
-	liveSearch     bool
-	resultFilter   string
+	searchMode     string
 }
 
 var defaultScraper *Scraper
@@ -29,22 +28,22 @@ func New() *Scraper {
 }
 
 // SetSearchLive enable/disable realtime search
-func (s *Scraper) SetSearchLive(b bool) *Scraper {
-	s.liveSearch = b
+func (s *Scraper) SetSearchLive(srctype bool) *Scraper {
+	if srctype {
+		s.searchMode = "live"
+	}
 	return s
 }
 
 // SetSearchLive wrapper for default SetSearchLive
-func SetSearchLive(b bool) *Scraper {
-	return defaultScraper.SetSearchLive(b)
+func SetSearchLive(srctype bool) *Scraper {
+	return defaultScraper.SetSearchLive(srctype)
 }
 
 // SetSearchPhotos filter search for photos only
 func (s *Scraper) SetSearchPhotos(srctype bool) *Scraper {
 	if srctype {
-		s.resultFilter = "image"
-	} else {
-		s.resultFilter = ""
+		s.searchMode = "image"
 	}
 	return s
 }
@@ -57,9 +56,7 @@ func SetSearchPhotos(srctype bool) *Scraper {
 // SetSearchVideos filter search for videos only
 func (s *Scraper) SetSearchVideos(srctype bool) *Scraper {
 	if srctype {
-		s.resultFilter = "video"
-	} else {
-		s.resultFilter = ""
+		s.searchMode = "video"
 	}
 	return s
 }
