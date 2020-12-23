@@ -15,8 +15,24 @@ type Scraper struct {
 	client         *http.Client
 	guestToken     string
 	includeReplies bool
-	searchMode     string
+	searchMode     SearchMode
 }
+
+// SearchMode type
+type SearchMode int
+
+const (
+	// SearchTop - default mode
+	SearchTop SearchMode = iota
+	// SearchLatest - live mode
+	SearchLatest
+	// SearchPeople - user mode
+	SearchPeople
+	// SearchPhotos - image mode
+	SearchPhotos
+	// SearchVideos - video mode
+	SearchVideos
+)
 
 var defaultScraper *Scraper
 
@@ -27,43 +43,15 @@ func New() *Scraper {
 	}
 }
 
-// SetSearchLive enable/disable realtime search
-func (s *Scraper) SetSearchLive(srctype bool) *Scraper {
-	if srctype {
-		s.searchMode = "live"
-	}
+// SetSearchMode switcher
+func (s *Scraper) SetSearchMode(mode SearchMode) *Scraper {
+	s.searchMode = mode
 	return s
 }
 
-// SetSearchLive wrapper for default SetSearchLive
-func SetSearchLive(srctype bool) *Scraper {
-	return defaultScraper.SetSearchLive(srctype)
-}
-
-// SetSearchPhotos filter search for photos only
-func (s *Scraper) SetSearchPhotos(srctype bool) *Scraper {
-	if srctype {
-		s.searchMode = "image"
-	}
-	return s
-}
-
-// SetSearchPhotos wrapper for default SetSearchPhotos
-func SetSearchPhotos(srctype bool) *Scraper {
-	return defaultScraper.SetSearchPhotos(srctype)
-}
-
-// SetSearchVideos filter search for videos only
-func (s *Scraper) SetSearchVideos(srctype bool) *Scraper {
-	if srctype {
-		s.searchMode = "video"
-	}
-	return s
-}
-
-// SetSearchVideos wrapper for default SetSearchVideos
-func SetSearchVideos(srctype bool) *Scraper {
-	return defaultScraper.SetSearchVideos(srctype)
+// SetSearchMode wrapper for default Scraper
+func SetSearchMode(mode SearchMode) *Scraper {
+	return defaultScraper.SetSearchMode(mode)
 }
 
 // WithReplies enable/disable load timeline with tweet replies

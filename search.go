@@ -37,10 +37,15 @@ func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor strin
 	if cursor != "" {
 		q.Add("cursor", cursor)
 	}
-	if s.searchMode == "live" {
-		q.Add("tweet_search_mode", s.searchMode)
-	} else {
-		q.Add("result_filter", s.searchMode)
+	switch s.searchMode {
+	case SearchLatest:
+		q.Add("tweet_search_mode", "live")
+	case SearchPeople:
+		q.Add("result_filter", "user")
+	case SearchPhotos:
+		q.Add("result_filter", "image")
+	case SearchVideos:
+		q.Add("result_filter", "video")
 	}
 
 	req.URL.RawQuery = q.Encode()
