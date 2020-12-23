@@ -15,6 +15,7 @@ type Scraper struct {
 	client         *http.Client
 	guestToken     string
 	includeReplies bool
+	searchMode     string
 }
 
 var defaultScraper *Scraper
@@ -24,6 +25,45 @@ func New() *Scraper {
 	return &Scraper{
 		client: &http.Client{Timeout: 10 * time.Second},
 	}
+}
+
+// SetSearchLive enable/disable realtime search
+func (s *Scraper) SetSearchLive(srctype bool) *Scraper {
+	if srctype {
+		s.searchMode = "live"
+	}
+	return s
+}
+
+// SetSearchLive wrapper for default SetSearchLive
+func SetSearchLive(srctype bool) *Scraper {
+	return defaultScraper.SetSearchLive(srctype)
+}
+
+// SetSearchPhotos filter search for photos only
+func (s *Scraper) SetSearchPhotos(srctype bool) *Scraper {
+	if srctype {
+		s.searchMode = "image"
+	}
+	return s
+}
+
+// SetSearchPhotos wrapper for default SetSearchPhotos
+func SetSearchPhotos(srctype bool) *Scraper {
+	return defaultScraper.SetSearchPhotos(srctype)
+}
+
+// SetSearchVideos filter search for videos only
+func (s *Scraper) SetSearchVideos(srctype bool) *Scraper {
+	if srctype {
+		s.searchMode = "video"
+	}
+	return s
+}
+
+// SetSearchVideos wrapper for default SetSearchVideos
+func SetSearchVideos(srctype bool) *Scraper {
+	return defaultScraper.SetSearchVideos(srctype)
 }
 
 // WithReplies enable/disable load timeline with tweet replies
