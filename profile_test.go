@@ -21,7 +21,7 @@ func TestGetProfile(t *testing.T) {
 		Joined:         &joined,
 		Location:       "everywhere",
 		Name:           "Twitter",
-		PinnedTweetIDs: []string{"1341069705889673217"},
+		PinnedTweetIDs: []string{},
 		URL:            "https://twitter.com/Twitter",
 		UserID:         "783214",
 		Username:       "Twitter",
