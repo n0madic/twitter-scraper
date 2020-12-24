@@ -40,8 +40,6 @@ func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor strin
 	switch s.searchMode {
 	case SearchLatest:
 		q.Add("tweet_search_mode", "live")
-	case SearchPeople:
-		q.Add("result_filter", "user")
 	case SearchPhotos:
 		q.Add("result_filter", "image")
 	case SearchVideos:

@@ -26,8 +26,6 @@ const (
 	SearchTop SearchMode = iota
 	// SearchLatest - live mode
 	SearchLatest
-	// SearchPeople - user mode
-	SearchPeople
 	// SearchPhotos - image mode
 	SearchPhotos
 	// SearchVideos - video mode

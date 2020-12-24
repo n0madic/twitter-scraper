@@ -78,7 +78,6 @@ Options:
 
 * `twitterscraper.SearchTop` - default mode
 * `twitterscraper.SearchLatest` - live mode
-* `twitterscraper.SearchPeople` - user mode
 * `twitterscraper.SearchPhotos` - image mode
 * `twitterscraper.SearchVideos` - video mode
 
