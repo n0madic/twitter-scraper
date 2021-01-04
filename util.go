@@ -103,7 +103,7 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 			ID:           id,
 			Likes:        tweet.FavoriteCount,
 			PermanentURL: fmt.Sprintf("https://twitter.com/%s/status/%s", username, id),
-			Replies:      tweet.RetweetCount,
+			Replies:      tweet.ReplyCount,
 			Retweets:     tweet.RetweetCount,
 			Text:         tweet.FullText,
 			UserID:       tweet.UserIDStr,
