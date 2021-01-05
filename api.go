@@ -39,6 +39,10 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("response status %s", resp.Status)
+	}
+
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
