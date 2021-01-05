@@ -44,6 +44,10 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		return fmt.Errorf("response status %s", resp.Status)
 	}
 
+	if resp.Header.Get("X-Rate-Limit-Remaining") == "0" {
+		s.guestToken = ""
+	}
+
 	return json.NewDecoder(resp.Body).Decode(target)
 }
 
