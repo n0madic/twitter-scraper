@@ -14,6 +14,7 @@ import (
 type Scraper struct {
 	client         *http.Client
 	guestToken     string
+	guestCreatedAt time.Time
 	includeReplies bool
 	searchMode     SearchMode
 }

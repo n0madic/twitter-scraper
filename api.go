@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sync"
+	"time"
 )
 
 const bearerToken string = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
@@ -23,7 +24,7 @@ var cacheIDs sync.Map
 
 // RequestAPI get JSON from frontend API and decodes it
 func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
-	if s.guestToken == "" {
+	if s.guestToken == "" || s.guestCreatedAt.Before(time.Now().Add(-time.Hour*3)) {
 		err := s.GetGuestToken()
 		if err != nil {
 			return err
@@ -76,6 +77,7 @@ func (s *Scraper) GetGuestToken() error {
 	if s.guestToken, ok = jsn["guest_token"].(string); !ok {
 		return fmt.Errorf("guest_token not found")
 	}
+	s.guestCreatedAt = time.Now()
 
 	return nil
 }
