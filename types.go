@@ -152,3 +152,17 @@ type (
 
 	fetchFunc func(user string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error)
 )
+
+type TweetList []Tweet
+
+func (t TweetList) Len() int {
+	return len(t)
+}
+
+func (t TweetList) Less(i, j int) bool {
+	return t[i].TimeParsed.Unix() < t[j].TimeParsed.Unix()
+}
+
+func (t TweetList) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
+}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -193,15 +194,26 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 
 	var cursor string
 	var orderedTweets []*Tweet
-	if len(timeline.Timeline.Instructions) > 0 {
-		for _, entry := range timeline.Timeline.Instructions[0].AddEntries.Entries {
-			if tweet, ok := tweets[entry.Content.Item.Content.Tweet.ID]; ok {
-				orderedTweets = append(orderedTweets, &tweet)
-			}
-			if entry.Content.Operation.Cursor.CursorType == "Bottom" {
-				cursor = entry.Content.Operation.Cursor.Value
-			}
-		}
+
+	for _, oneTweet := range orderTweetsByTime(tweets) {
+		println(oneTweet.TimeParsed.Unix(), "oneTweet:", oneTweet.Text, oneTweet.ID)
+		tmpTw := oneTweet
+		orderedTweets = append(orderedTweets, &tmpTw)
 	}
+
 	return orderedTweets, cursor
+}
+
+func orderTweetsByTime(tweets map[string]Tweet) TweetList {
+
+	tList := make(TweetList, len(tweets))
+	i := 0
+
+	for _, v := range tweets {
+		tList[i] = v
+		i++
+	}
+
+	sort.Sort(sort.Reverse(tList))
+	return tList
 }
