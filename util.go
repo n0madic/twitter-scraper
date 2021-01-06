@@ -84,8 +84,13 @@ func getTimeline(ctx context.Context, query string, maxTweetsNbr int, fetchFunc 
 				}
 
 				if tweetsNbr < maxTweetsNbr {
+					if tweet.IsPin && nextCursor != "" {
+						continue
+					}
 					nextCursor = next
 					channel <- &Result{Tweet: *tweet}
+				} else {
+					break
 				}
 				tweetsNbr++
 			}
@@ -192,9 +197,15 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 	}
 
 	var cursor string
+	var pinnedTweet *Tweet
 	var orderedTweets []*Tweet
-	if len(timeline.Timeline.Instructions) > 0 {
-		for _, entry := range timeline.Timeline.Instructions[0].AddEntries.Entries {
+	for _, instruction := range timeline.Timeline.Instructions {
+		if instruction.PinEntry.Entry.Content.Item.Content.Tweet.ID != "" {
+			if tweet, ok := tweets[instruction.PinEntry.Entry.Content.Item.Content.Tweet.ID]; ok {
+				pinnedTweet = &tweet
+			}
+		}
+		for _, entry := range instruction.AddEntries.Entries {
 			if tweet, ok := tweets[entry.Content.Item.Content.Tweet.ID]; ok {
 				orderedTweets = append(orderedTweets, &tweet)
 			}
@@ -202,6 +213,9 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 				cursor = entry.Content.Operation.Cursor.Value
 			}
 		}
+	}
+	if pinnedTweet != nil && len(orderedTweets) > 0 {
+		orderedTweets = append([]*Tweet{pinnedTweet}, orderedTweets...)
 	}
 	return orderedTweets, cursor
 }

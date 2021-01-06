@@ -146,6 +146,19 @@ type (
 						} `json:"content,omitempty"`
 					} `json:"entries"`
 				} `json:"addEntries"`
+				PinEntry struct {
+					Entry struct {
+						Content struct {
+							Item struct {
+								Content struct {
+									Tweet struct {
+										ID string `json:"id"`
+									} `json:"tweet"`
+								} `json:"content"`
+							} `json:"item"`
+						} `json:"content"`
+					} `json:"entry"`
+				} `json:"pinEntry,omitempty"`
 			} `json:"instructions"`
 		} `json:"timeline"`
 	}
