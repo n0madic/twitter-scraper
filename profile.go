@@ -51,7 +51,7 @@ func (s *Scraper) GetProfile(username string) (Profile, error) {
 		return Profile{}, fmt.Errorf("rest_id not found")
 	}
 
-	if jsn.Data.User.Legacy.Name == "" {
+	if jsn.Data.User.Legacy.ScreenName == "" {
 		return Profile{}, fmt.Errorf("either @%s does not exist or is private", username)
 	}
 
