@@ -15,8 +15,12 @@ type user struct {
 	Data struct {
 		User struct {
 			RestID string `json:"rest_id"`
+			Legacy User   `json:"legacy"`
 		} `json:"user"`
 	} `json:"data"`
+	Errors []struct {
+		Message string `json:"message"`
+	} `json:"errors"`
 }
 
 // Global cache for user IDs
@@ -40,7 +44,8 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	// private profiles return forbidden, but also data
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusForbidden {
 		return fmt.Errorf("response status %s", resp.Status)
 	}
 
@@ -102,6 +107,10 @@ func (s *Scraper) GetUserIDByScreenName(screenName string) (string, error) {
 	err = s.RequestAPI(req, &jsn)
 	if err != nil {
 		return "", err
+	}
+
+	if len(jsn.Errors) > 0 {
+		return "", fmt.Errorf("%s", jsn.Errors[0].Message)
 	}
 
 	if jsn.Data.User.RestID == "" {

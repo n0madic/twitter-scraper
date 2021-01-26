@@ -2,6 +2,7 @@ package twitterscraper
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -31,31 +32,30 @@ type Profile struct {
 
 // GetProfile return parsed user profile.
 func (s *Scraper) GetProfile(username string) (Profile, error) {
-	userID, err := s.GetUserIDByScreenName(username)
+	var jsn user
+	req, err := http.NewRequest("GET", "https://api.twitter.com/graphql/4S2ihIKfF3xhp-ENxvUAfQ/UserByScreenName?variables=%7B%22screen_name%22%3A%22"+username+"%22%2C%22withHighlightedLabel%22%3Atrue%7D", nil)
 	if err != nil {
 		return Profile{}, err
 	}
 
-	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/timeline/profile/"+userID+".json")
+	err = s.RequestAPI(req, &jsn)
 	if err != nil {
 		return Profile{}, err
 	}
 
-	q := req.URL.Query()
-	q.Add("count", "20")
-	q.Add("userId", userID)
-	req.URL.RawQuery = q.Encode()
-
-	var timeline timeline
-	err = s.RequestAPI(req, &timeline)
-	if err != nil {
-		return Profile{}, err
+	if len(jsn.Errors) > 0 {
+		return Profile{}, fmt.Errorf("%s", jsn.Errors[0].Message)
 	}
 
-	user, found := timeline.GlobalObjects.Users[userID]
-	if !found {
+	if jsn.Data.User.RestID == "" {
+		return Profile{}, fmt.Errorf("rest_id not found")
+	}
+
+	if jsn.Data.User.Legacy.ScreenName == "" {
 		return Profile{}, fmt.Errorf("either @%s does not exist or is private", username)
 	}
+
+	user := jsn.Data.User.Legacy
 
 	profile := Profile{
 		Avatar:         user.ProfileImageURLHTTPS,
@@ -73,7 +73,7 @@ func (s *Scraper) GetProfile(username string) (Profile, error) {
 		PinnedTweetIDs: user.PinnedTweetIdsStr,
 		TweetsCount:    user.StatusesCount,
 		URL:            "https://twitter.com/" + user.ScreenName,
-		UserID:         user.IDStr,
+		UserID:         jsn.Data.User.RestID,
 		Username:       user.ScreenName,
 	}
 
