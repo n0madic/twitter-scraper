@@ -12,8 +12,8 @@ func TestGetProfile(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
 	joined := time.Date(2007, 02, 20, 14, 35, 54, 0, loc)
 	sample := Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1308010958862905345/-SGZioPb_normal.jpg",
-		Banner:    "https://pbs.twimg.com/profile_banners/783214/1609475315",
+		Avatar:    "https://pbs.twimg.com/profile_images/1354479643882004483/Btnfm47p_normal.jpg",
+		Banner:    "https://pbs.twimg.com/profile_banners/783214/1611770459",
 		Biography: "What's happening?!",
 		//	Birthday:   "March 21",
 		IsPrivate:      false,
@@ -61,26 +61,26 @@ func TestGetProfile(t *testing.T) {
 
 func TestGetProfilePrivate(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
-	joined := time.Date(2009, 8, 12, 6, 18, 29, 0, loc)
+	joined := time.Date(2020, 1, 26, 0, 3, 5, 0, loc)
 	sample := Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1352282054256324610/_v3nslbW_normal.jpg",
-		Banner:    "https://pbs.twimg.com/profile_banners/64958707/1551520603",
-		Biography: "",
+		Avatar:    "https://pbs.twimg.com/profile_images/1222218816484020224/ik9P1QZt_normal.jpg",
+		Banner:    "",
+		Biography: "private account",
 		//	Birthday:   "March 21",
 		IsPrivate:      true,
 		IsVerified:     false,
 		Joined:         &joined,
 		Location:       "",
-		Name:           "saidah.jpg",
+		Name:           "private account",
 		PinnedTweetIDs: []string{},
-		URL:            "https://twitter.com/sdhftrh",
-		UserID:         "64958707",
-		Username:       "sdhftrh",
-		Website:        "https://youtu.be/0liuo2Q4bGo",
+		URL:            "https://twitter.com/tomdumont",
+		UserID:         "1221221876849995777",
+		Username:       "tomdumont",
+		Website:        "",
 	}
 
 	// some random private profile (found via google)
-	profile, err := GetProfile("sdhftrh")
+	profile, err := GetProfile("tomdumont")
 	if err != nil {
 		t.Error(err)
 	}
@@ -97,9 +97,6 @@ func TestGetProfilePrivate(t *testing.T) {
 		t.Error("Resulting profile does not match the sample", diff)
 	}
 
-	if profile.FollowersCount == 0 {
-		t.Error("Expected FollowersCount is greater than zero")
-	}
 	if profile.FollowingCount == 0 {
 		t.Error("Expected FollowingCount is greater than zero")
 	}
