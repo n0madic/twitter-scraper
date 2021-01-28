@@ -94,3 +94,20 @@ func (s *Scraper) GetProfile(username string) (Profile, error) {
 func GetProfile(username string) (Profile, error) {
 	return defaultScraper.GetProfile(username)
 }
+
+// GetUserIDByScreenName from API
+func (s *Scraper) GetUserIDByScreenName(screenName string) (string, error) {
+	id, ok := cacheIDs.Load(screenName)
+	if ok {
+		return id.(string), nil
+	}
+
+	profile, err := s.GetProfile(screenName)
+	if err != nil {
+		return "", err
+	}
+
+	cacheIDs.Store(screenName, profile.UserID)
+
+	return profile.UserID, nil
+}

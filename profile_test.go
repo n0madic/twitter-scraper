@@ -129,3 +129,14 @@ func TestGetProfileErrorNotFound(t *testing.T) {
 		}
 	}
 }
+
+func TestGetUserIDByScreenName(t *testing.T) {
+	scraper := New()
+	userID, err := scraper.GetUserIDByScreenName("Twitter")
+	if err != nil {
+		t.Errorf("getUserByScreenName() error = %v", err)
+	}
+	if userID == "" {
+		t.Error("Expected non-empty user ID")
+	}
+}
