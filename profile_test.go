@@ -13,7 +13,7 @@ func TestGetProfile(t *testing.T) {
 	joined := time.Date(2007, 02, 20, 14, 35, 54, 0, loc)
 	sample := Profile{
 		Avatar:    "https://pbs.twimg.com/profile_images/1354479643882004483/Btnfm47p_normal.jpg",
-		Banner:    "https://pbs.twimg.com/profile_banners/783214/1611848945",
+		Banner:    "https://pbs.twimg.com/profile_banners/783214/1611950530",
 		Biography: "What's happening?!",
 		//	Birthday:   "March 21",
 		IsPrivate:      false,
