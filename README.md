@@ -1,5 +1,7 @@
 # Twitter Scraper
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/n0madic/twitter-scraper.svg)](https://pkg.go.dev/github.com/n0madic/twitter-scraper)
+
 Twitter's API is annoying to work with, and has lots of limitations —
 luckily their frontend (JavaScript) has it's own API, which I reverse-engineered.
 No API rate limits. No tokens needed. No restrictions. Extremely fast.
