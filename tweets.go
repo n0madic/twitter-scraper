@@ -71,3 +71,8 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 	}
 	return nil, fmt.Errorf("tweet with ID %s not found", id)
 }
+
+// GetTweet wrapper for default Scraper
+func GetTweet(id string) (*Tweet, error) {
+	return defaultScraper.GetTweet(id)
+}
