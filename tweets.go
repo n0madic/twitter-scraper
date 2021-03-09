@@ -2,6 +2,7 @@ package twitterscraper
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 )
 
@@ -47,4 +48,26 @@ func (s *Scraper) FetchTweets(user string, maxTweetsNbr int, cursor string) ([]*
 
 	tweets, nextCursor := parseTimeline(&timeline)
 	return tweets, nextCursor, nil
+}
+
+// GetTweet get a single tweet by ID.
+func (s *Scraper) GetTweet(id string) (*Tweet, error) {
+	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/timeline/conversation/"+id+".json")
+	if err != nil {
+		return nil, err
+	}
+
+	var timeline timeline
+	err = s.RequestAPI(req, &timeline)
+	if err != nil {
+		return nil, err
+	}
+
+	tweets, _ := parseTimeline(&timeline)
+	for _, tweet := range tweets {
+		if tweet.ID == id {
+			return tweet, nil
+		}
+	}
+	return nil, fmt.Errorf("tweet with ID %s not found", id)
 }

@@ -38,6 +38,27 @@ func main() {
 
 It appears you can ask for up to 50 tweets (limit ~3200 tweets).
 
+### Get single tweet
+
+```golang
+package main
+
+import (
+    "fmt"
+
+    twitterscraper "github.com/n0madic/twitter-scraper"
+)
+
+func main() {
+    scraper := twitterscraper.New()
+    tweet, err := scraper.GetTweet("1328684389388185600")
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println(tweet.Text)
+}
+```
+
 ### Search tweets by query standard operators
 
 Tweets containing “twitter” and “scraper” and “data“, filtering out retweets:
