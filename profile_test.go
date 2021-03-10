@@ -1,6 +1,7 @@
 package twitterscraper
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -120,12 +121,14 @@ func TestGetProfileErrorSuspended(t *testing.T) {
 }
 
 func TestGetProfileErrorNotFound(t *testing.T) {
-	_, err := GetProfile("sample3123131")
+	neUser := "sample3123131"
+	expectedError := fmt.Sprintf("User '%s' not found", neUser)
+	_, err := GetProfile(neUser)
 	if err == nil {
 		t.Error("Expected Error, got success")
 	} else {
-		if err.Error() != "Not found" {
-			t.Errorf("Expected error 'Not found', got '%s'", err)
+		if err.Error() != expectedError {
+			t.Errorf("Expected error '%s', got '%s'", expectedError, err)
 		}
 	}
 }
