@@ -94,3 +94,21 @@ func TestGetTweet(t *testing.T) {
 		}
 	}
 }
+
+func TestRetweet(t *testing.T) {
+	sample := Retweet{
+		ID:         "1359151057872580612",
+		TimeParsed: time.Date(2021, 02, 9, 14, 43, 58, 0, time.FixedZone("UTC", 0)),
+		Timestamp:  1612881838,
+		UserID:     "773578328498372608",
+		Username:   "TwitterTogether",
+	}
+	tweet, err := defaultScraper.GetTweet("1362849141248974853")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if diff := cmp.Diff(sample, tweet.Retweet); diff != "" {
+			t.Error("Resulting retweet does not match the sample", diff)
+		}
+	}
+}

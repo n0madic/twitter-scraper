@@ -10,6 +10,15 @@ type (
 		URL     string
 	}
 
+	// Retweet type
+	Retweet struct {
+		ID         string
+		TimeParsed time.Time
+		Timestamp  int64
+		UserID     string
+		Username   string
+	}
+
 	// Tweet type.
 	Tweet struct {
 		Hashtags     []string
@@ -24,6 +33,7 @@ type (
 		Photos       []string
 		Replies      int
 		Retweets     int
+		Retweet      Retweet
 		Text         string
 		TimeParsed   time.Time
 		Timestamp    int64
