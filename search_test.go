@@ -26,6 +26,7 @@ func TestFetchSearchCursor(t *testing.T) {
 func TestGetSearchTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 250
+	dupcheck := make(map[string]bool)
 	for tweet := range SearchTweets(context.Background(), "twitter -filter:retweets", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
@@ -33,6 +34,12 @@ func TestGetSearchTweets(t *testing.T) {
 			count++
 			if tweet.ID == "" {
 				t.Error("Expected tweet ID is not empty")
+			} else {
+				if dupcheck[tweet.ID] {
+					t.Errorf("Detect duplicated tweet ID: %s", tweet.ID)
+				} else {
+					dupcheck[tweet.ID] = true
+				}
 			}
 			if tweet.PermanentURL == "" {
 				t.Error("Expected tweet PermanentURL is not empty")
