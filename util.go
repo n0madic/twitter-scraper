@@ -225,6 +225,9 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 				cursor = entry.Content.Operation.Cursor.Value
 			}
 		}
+		if instruction.ReplaceEntry.Entry.Content.Operation.Cursor.CursorType == "Bottom" {
+			cursor = instruction.ReplaceEntry.Entry.Content.Operation.Cursor.Value
+		}
 	}
 	if pinnedTweet != nil && len(orderedTweets) > 0 {
 		orderedTweets = append([]*Tweet{pinnedTweet}, orderedTweets...)

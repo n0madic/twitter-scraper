@@ -169,6 +169,18 @@ type (
 						} `json:"content"`
 					} `json:"entry"`
 				} `json:"pinEntry,omitempty"`
+				ReplaceEntry struct {
+					Entry struct {
+						Content struct {
+							Operation struct {
+								Cursor struct {
+									Value      string `json:"value"`
+									CursorType string `json:"cursorType"`
+								} `json:"cursor"`
+							} `json:"operation"`
+						} `json:"content"`
+					} `json:"entry"`
+				} `json:"replaceEntry,omitempty"`
 			} `json:"instructions"`
 		} `json:"timeline"`
 	}

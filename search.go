@@ -19,8 +19,8 @@ func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *R
 // FetchSearchTweets gets tweets for a given search query, via the Twitter frontend API
 func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
 	query = url.PathEscape(query)
-	if maxTweetsNbr > 200 {
-		maxTweetsNbr = 200
+	if maxTweetsNbr > 100 {
+		maxTweetsNbr = 100
 	}
 
 	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/search/adaptive.json")
