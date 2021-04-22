@@ -103,6 +103,7 @@ Options:
 * `twitterscraper.SearchLatest` - live mode
 * `twitterscraper.SearchPhotos` - image mode
 * `twitterscraper.SearchVideos` - video mode
+* `twitterscraper.SearchUsers` - user mode
 
 ### Get profile
 
@@ -121,6 +122,28 @@ func main() {
         panic(err)
     }
     fmt.Printf("%+v\n", profile)
+}
+```
+
+### Search profiles by query
+
+```golang
+package main
+
+import (
+    "context"
+    "fmt"
+    twitterscraper "github.com/n0madic/twitter-scraper"
+)
+
+func main() {
+    scraper := twitterscraper.New().SetSearchMode(twitterscraper.SearchUsers)
+    for profile := range scraper.SearchUsers(context.Background(), "Twitter", 50) {
+        if profile.Error != nil {
+            panic(profile.Error)
+        }
+        fmt.Println(profile.Name)
+    }
 }
 ```
 

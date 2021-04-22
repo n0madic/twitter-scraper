@@ -7,30 +7,40 @@ import (
 )
 
 // SearchTweets returns channel with tweets for a given search query
-func (s *Scraper) SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *Result {
-	return getTimeline(ctx, query, maxTweetsNbr, s.FetchSearchTweets)
+func (s *Scraper) SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *TweetResult {
+	return getTweetTimeline(ctx, query, maxTweetsNbr, s.FetchSearchTweets)
 }
 
 // SearchTweets wrapper for default Scraper
-func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *Result {
+func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *TweetResult {
 	return defaultScraper.SearchTweets(ctx, query, maxTweetsNbr)
 }
 
-// FetchSearchTweets gets tweets for a given search query, via the Twitter frontend API
-func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
+// SearchProfiles returns channel with profiles for a given search query
+func (s *Scraper) SearchProfiles(ctx context.Context, query string, maxProfilesNbr int) <-chan *ProfileResult {
+	return getUserTimeline(ctx, query, maxProfilesNbr, s.FetchSearchProfiles)
+}
+
+// SearchProfiles wrapper for default Scraper
+func SearchProfiles(ctx context.Context, query string, maxProfilesNbr int) <-chan *ProfileResult {
+	return defaultScraper.SearchProfiles(ctx, query, maxProfilesNbr)
+}
+
+// getSearchTimeline gets results for a given search query, via the Twitter frontend API
+func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*timeline, error) {
 	query = url.PathEscape(query)
-	if maxTweetsNbr > 100 {
-		maxTweetsNbr = 100
+	if maxNbr > 50 {
+		maxNbr = 50
 	}
 
 	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/search/adaptive.json")
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	q := req.URL.Query()
 	q.Add("q", query)
-	q.Add("count", strconv.Itoa(maxTweetsNbr))
+	q.Add("count", strconv.Itoa(maxNbr))
 	q.Add("query_source", "typed_query")
 	q.Add("pc", "1")
 	q.Add("spelling_corrections", "1")
@@ -44,6 +54,8 @@ func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor strin
 		q.Add("result_filter", "image")
 	case SearchVideos:
 		q.Add("result_filter", "video")
+	case SearchUsers:
+		q.Add("result_filter", "user")
 	}
 
 	req.URL.RawQuery = q.Encode()
@@ -51,9 +63,27 @@ func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor strin
 	var timeline timeline
 	err = s.RequestAPI(req, &timeline)
 	if err != nil {
+		return nil, err
+	}
+	return &timeline, nil
+}
+
+// FetchSearchTweets gets tweets for a given search query, via the Twitter frontend API
+func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
+	timeline, err := s.getSearchTimeline(query, maxTweetsNbr, cursor)
+	if err != nil {
 		return nil, "", err
 	}
-
-	tweets, nextCursor := parseTimeline(&timeline)
+	tweets, nextCursor := parseTimeline(timeline)
 	return tweets, nextCursor, nil
+}
+
+// FetchSearchProfiles gets users for a given search query, via the Twitter frontend API
+func (s *Scraper) FetchSearchProfiles(query string, maxProfilesNbr int, cursor string) ([]*Profile, string, error) {
+	timeline, err := s.getSearchTimeline(query, maxProfilesNbr, cursor)
+	if err != nil {
+		return nil, "", err
+	}
+	users, nextCursor := parseUsers(timeline)
+	return users, nextCursor, nil
 }

@@ -31,6 +31,8 @@ const (
 	SearchPhotos
 	// SearchVideos - video mode
 	SearchVideos
+	// SearchUsers - user mode
+	SearchUsers
 )
 
 var defaultScraper *Scraper

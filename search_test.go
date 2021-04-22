@@ -16,16 +16,42 @@ func TestFetchSearchCursor(t *testing.T) {
 			t.Fatal(err)
 		}
 		if cursor == "" {
-			t.Fatal("Expected search cursor is not empty")
+			t.Fatal("Expected search cursor is empty")
 		}
 		tweetsNbr += len(tweets)
 		nextCursor = cursor
 	}
 }
 
+func TestGetSearchProfiles(t *testing.T) {
+	count := 0
+	maxProfilesNbr := 150
+	dupcheck := make(map[string]bool)
+	scraper := New().SetSearchMode(SearchUsers)
+	for profile := range scraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
+		if profile.Error != nil {
+			t.Error(profile.Error)
+		} else {
+			count++
+			if profile.UserID == "" {
+				t.Error("Expected UserID is empty")
+			} else {
+				if dupcheck[profile.UserID] {
+					t.Errorf("Detect duplicated UserID: %s", profile.UserID)
+				} else {
+					dupcheck[profile.UserID] = true
+				}
+			}
+		}
+	}
+
+	if count != maxProfilesNbr {
+		t.Errorf("Expected profiles count=%v, got: %v", maxProfilesNbr, count)
+	}
+}
 func TestGetSearchTweets(t *testing.T) {
 	count := 0
-	maxTweetsNbr := 250
+	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)
 	for tweet := range SearchTweets(context.Background(), "twitter -filter:retweets", maxTweetsNbr) {
 		if tweet.Error != nil {
@@ -33,7 +59,7 @@ func TestGetSearchTweets(t *testing.T) {
 		} else {
 			count++
 			if tweet.ID == "" {
-				t.Error("Expected tweet ID is not empty")
+				t.Error("Expected tweet ID is empty")
 			} else {
 				if dupcheck[tweet.ID] {
 					t.Errorf("Detect duplicated tweet ID: %s", tweet.ID)
@@ -42,13 +68,13 @@ func TestGetSearchTweets(t *testing.T) {
 				}
 			}
 			if tweet.PermanentURL == "" {
-				t.Error("Expected tweet PermanentURL is not empty")
+				t.Error("Expected tweet PermanentURL is empty")
 			}
 			if tweet.IsRetweet {
 				t.Error("Expected tweet IsRetweet is false")
 			}
 			if tweet.Text == "" {
-				t.Error("Expected tweet Text is not empty")
+				t.Error("Expected tweet Text is empty")
 			}
 		}
 	}

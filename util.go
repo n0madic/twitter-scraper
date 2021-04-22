@@ -51,23 +51,68 @@ func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
 	return req, nil
 }
 
-func getTimeline(ctx context.Context, query string, maxTweetsNbr int, fetchFunc fetchFunc) <-chan *Result {
-	channel := make(chan *Result)
-	go func(user string) {
+func getUserTimeline(ctx context.Context, query string, maxProfilesNbr int, fetchFunc fetchProfileFunc) <-chan *ProfileResult {
+	channel := make(chan *ProfileResult)
+	go func(query string) {
+		defer close(channel)
+		var nextCursor string
+		profilesNbr := 0
+		for profilesNbr < maxProfilesNbr {
+			select {
+			case <-ctx.Done():
+				channel <- &ProfileResult{Error: ctx.Err()}
+				return
+			default:
+			}
+
+			profiles, next, err := fetchFunc(query, maxProfilesNbr, nextCursor)
+			if err != nil {
+				channel <- &ProfileResult{Error: err}
+				return
+			}
+
+			if len(profiles) == 0 {
+				break
+			}
+
+			for _, profile := range profiles {
+				select {
+				case <-ctx.Done():
+					channel <- &ProfileResult{Error: ctx.Err()}
+					return
+				default:
+				}
+
+				if profilesNbr < maxProfilesNbr {
+					nextCursor = next
+					channel <- &ProfileResult{Profile: *profile}
+				} else {
+					break
+				}
+				profilesNbr++
+			}
+		}
+	}(query)
+	return channel
+}
+
+func getTweetTimeline(ctx context.Context, query string, maxTweetsNbr int, fetchFunc fetchTweetFunc) <-chan *TweetResult {
+	channel := make(chan *TweetResult)
+	go func(query string) {
 		defer close(channel)
 		var nextCursor string
 		tweetsNbr := 0
 		for tweetsNbr < maxTweetsNbr {
 			select {
 			case <-ctx.Done():
-				channel <- &Result{Error: ctx.Err()}
+				channel <- &TweetResult{Error: ctx.Err()}
 				return
 			default:
 			}
 
 			tweets, next, err := fetchFunc(query, maxTweetsNbr, nextCursor)
 			if err != nil {
-				channel <- &Result{Error: err}
+				channel <- &TweetResult{Error: err}
 				return
 			}
 
@@ -78,7 +123,7 @@ func getTimeline(ctx context.Context, query string, maxTweetsNbr int, fetchFunc 
 			for _, tweet := range tweets {
 				select {
 				case <-ctx.Done():
-					channel <- &Result{Error: ctx.Err()}
+					channel <- &TweetResult{Error: ctx.Err()}
 					return
 				default:
 				}
@@ -88,7 +133,7 @@ func getTimeline(ctx context.Context, query string, maxTweetsNbr int, fetchFunc 
 						continue
 					}
 					nextCursor = next
-					channel <- &Result{Tweet: *tweet}
+					channel <- &TweetResult{Tweet: *tweet}
 				} else {
 					break
 				}
@@ -97,6 +142,40 @@ func getTimeline(ctx context.Context, query string, maxTweetsNbr int, fetchFunc 
 		}
 	}(query)
 	return channel
+}
+
+func parseProfile(user legacyUser) Profile {
+	profile := Profile{
+		Avatar:         user.ProfileImageURLHTTPS,
+		Banner:         user.ProfileBannerURL,
+		Biography:      user.Description,
+		FollowersCount: user.FollowersCount,
+		FollowingCount: user.FavouritesCount,
+		FriendsCount:   user.FriendsCount,
+		IsPrivate:      user.Protected,
+		IsVerified:     user.Verified,
+		LikesCount:     user.FavouritesCount,
+		ListedCount:    user.ListedCount,
+		Location:       user.Location,
+		Name:           user.Name,
+		PinnedTweetIDs: user.PinnedTweetIdsStr,
+		TweetsCount:    user.StatusesCount,
+		URL:            "https://twitter.com/" + user.ScreenName,
+		UserID:         user.IDStr,
+		Username:       user.ScreenName,
+	}
+
+	tm, err := time.Parse(time.RubyDate, user.CreatedAt)
+	if err == nil {
+		tm = tm.UTC()
+		profile.Joined = &tm
+	}
+
+	if len(user.Entities.URL.Urls) > 0 {
+		profile.Website = user.Entities.URL.Urls[0].ExpandedURL
+	}
+
+	return profile
 }
 
 func parseTimeline(timeline *timeline) ([]*Tweet, string) {
@@ -233,4 +312,29 @@ func parseTimeline(timeline *timeline) ([]*Tweet, string) {
 		orderedTweets = append([]*Tweet{pinnedTweet}, orderedTweets...)
 	}
 	return orderedTweets, cursor
+}
+
+func parseUsers(timeline *timeline) ([]*Profile, string) {
+	users := make(map[string]Profile)
+
+	for id, user := range timeline.GlobalObjects.Users {
+		users[id] = parseProfile(user)
+	}
+
+	var cursor string
+	var orderedProfiles []*Profile
+	for _, instruction := range timeline.Timeline.Instructions {
+		for _, entry := range instruction.AddEntries.Entries {
+			if profile, ok := users[entry.Content.Item.Content.User.ID]; ok {
+				orderedProfiles = append(orderedProfiles, &profile)
+			}
+			if entry.Content.Operation.Cursor.CursorType == "Bottom" {
+				cursor = entry.Content.Operation.Cursor.Value
+			}
+		}
+		if instruction.ReplaceEntry.Entry.Content.Operation.Cursor.CursorType == "Bottom" {
+			cursor = instruction.ReplaceEntry.Entry.Content.Operation.Cursor.Value
+		}
+	}
+	return orderedProfiles, cursor
 }

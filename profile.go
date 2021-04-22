@@ -30,6 +30,18 @@ type Profile struct {
 	Website        string
 }
 
+type user struct {
+	Data struct {
+		User struct {
+			RestID string     `json:"rest_id"`
+			Legacy legacyUser `json:"legacy"`
+		} `json:"user"`
+	} `json:"data"`
+	Errors []struct {
+		Message string `json:"message"`
+	} `json:"errors"`
+}
+
 // GetProfile return parsed user profile.
 func (s *Scraper) GetProfile(username string) (Profile, error) {
 	var jsn user
@@ -50,44 +62,13 @@ func (s *Scraper) GetProfile(username string) (Profile, error) {
 	if jsn.Data.User.RestID == "" {
 		return Profile{}, fmt.Errorf("rest_id not found")
 	}
+	jsn.Data.User.Legacy.IDStr = jsn.Data.User.RestID
 
 	if jsn.Data.User.Legacy.ScreenName == "" {
 		return Profile{}, fmt.Errorf("either @%s does not exist or is private", username)
 	}
 
-	user := jsn.Data.User.Legacy
-
-	profile := Profile{
-		Avatar:         user.ProfileImageURLHTTPS,
-		Banner:         user.ProfileBannerURL,
-		Biography:      user.Description,
-		FollowersCount: user.FollowersCount,
-		FollowingCount: user.FavouritesCount,
-		FriendsCount:   user.FriendsCount,
-		IsPrivate:      user.Protected,
-		IsVerified:     user.Verified,
-		LikesCount:     user.FavouritesCount,
-		ListedCount:    user.ListedCount,
-		Location:       user.Location,
-		Name:           user.Name,
-		PinnedTweetIDs: user.PinnedTweetIdsStr,
-		TweetsCount:    user.StatusesCount,
-		URL:            "https://twitter.com/" + user.ScreenName,
-		UserID:         jsn.Data.User.RestID,
-		Username:       user.ScreenName,
-	}
-
-	tm, err := time.Parse(time.RubyDate, user.CreatedAt)
-	if err == nil {
-		tm = tm.UTC()
-		profile.Joined = &tm
-	}
-
-	if len(user.Entities.URL.Urls) > 0 {
-		profile.Website = user.Entities.URL.Urls[0].ExpandedURL
-	}
-
-	return profile, nil
+	return parseProfile(jsn.Data.User.Legacy), nil
 }
 
 // GetProfile wrapper for default scraper
