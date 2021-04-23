@@ -3,8 +3,12 @@ package twitterscraper
 import (
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 )
+
+// Global cache for user IDs
+var cacheIDs sync.Map
 
 // Profile of twitter user.
 type Profile struct {
