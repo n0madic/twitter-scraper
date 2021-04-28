@@ -138,7 +138,7 @@ import (
 
 func main() {
     scraper := twitterscraper.New().SetSearchMode(twitterscraper.SearchUsers)
-    for profile := range scraper.SearchUsers(context.Background(), "Twitter", 50) {
+    for profile := range scraper.SearchProfiles(context.Background(), "Twitter", 50) {
         if profile.Error != nil {
             panic(profile.Error)
         }
