@@ -11,25 +11,25 @@ import (
 
 func TestGetProfile(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
-	joined := time.Date(2007, 02, 20, 14, 35, 54, 0, loc)
+	joined := time.Date(2010, 01, 18, 8, 49, 30, 0, loc)
 	sample := Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1354479643882004483/Btnfm47p_normal.jpg",
-		Banner:    "https://pbs.twimg.com/profile_banners/783214/1619544410",
-		Biography: "What's happening?!",
+		Avatar:    "https://pbs.twimg.com/profile_images/436075027193004032/XlDa2oaz_normal.jpeg",
+		Banner:    "https://pbs.twimg.com/profile_banners/106037940/1541084318",
+		Biography: "nothing",
 		//	Birthday:   "March 21",
 		IsPrivate:      false,
-		IsVerified:     true,
+		IsVerified:     false,
 		Joined:         &joined,
-		Location:       "everywhere",
-		Name:           "Twitter",
+		Location:       "Ukraine",
+		Name:           "Nomadic",
 		PinnedTweetIDs: []string{},
-		URL:            "https://twitter.com/Twitter",
-		UserID:         "783214",
-		Username:       "Twitter",
-		Website:        "https://about.twitter.com/",
+		URL:            "https://twitter.com/nomadic_ua",
+		UserID:         "106037940",
+		Username:       "nomadic_ua",
+		Website:        "https://nomadic.name",
 	}
 
-	profile, err := GetProfile("Twitter")
+	profile, err := GetProfile("nomadic_ua")
 	if err != nil {
 		t.Error(err)
 	}
