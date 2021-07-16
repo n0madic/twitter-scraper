@@ -176,6 +176,14 @@ if err != nil {
 }
 ```
 
+### Delay requests
+
+Add delay between API requests (in seconds)
+
+```golang
+scraper.WithDelay(5)
+```
+
 ### Load timeline with tweet replies
 
 ```golang

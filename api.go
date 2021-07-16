@@ -12,6 +12,17 @@ const bearerToken string = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xn
 
 // RequestAPI get JSON from frontend API and decodes it
 func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
+	s.wg.Wait()
+	if s.delay > 0 {
+		defer func() {
+			s.wg.Add(1)
+			go func() {
+				time.Sleep(time.Second * time.Duration(s.delay))
+				s.wg.Done()
+			}()
+		}()
+	}
+
 	if s.guestToken == "" || s.guestCreatedAt.Before(time.Now().Add(-time.Hour*3)) {
 		err := s.GetGuestToken()
 		if err != nil {

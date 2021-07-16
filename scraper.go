@@ -7,16 +7,19 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 )
 
 // Scraper object
 type Scraper struct {
 	client         *http.Client
+	delay          int64
 	guestToken     string
 	guestCreatedAt time.Time
 	includeReplies bool
 	searchMode     SearchMode
+	wg             sync.WaitGroup
 }
 
 // SearchMode type
@@ -53,6 +56,17 @@ func (s *Scraper) SetSearchMode(mode SearchMode) *Scraper {
 // SetSearchMode wrapper for default Scraper
 func SetSearchMode(mode SearchMode) *Scraper {
 	return defaultScraper.SetSearchMode(mode)
+}
+
+// WithDelay add delay between API requests (in seconds)
+func (s *Scraper) WithDelay(seconds int64) *Scraper {
+	s.delay = seconds
+	return s
+}
+
+// WithDelay wrapper for default Scraper
+func WithDelay(seconds int64) *Scraper {
+	return defaultScraper.WithDelay(seconds)
 }
 
 // WithReplies enable/disable load timeline with tweet replies
