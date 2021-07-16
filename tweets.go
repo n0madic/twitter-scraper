@@ -46,7 +46,7 @@ func (s *Scraper) FetchTweets(user string, maxTweetsNbr int, cursor string) ([]*
 		return nil, "", err
 	}
 
-	tweets, nextCursor := parseTimeline(&timeline)
+	tweets, nextCursor := timeline.parseTweets()
 	return tweets, nextCursor, nil
 }
 
@@ -63,7 +63,7 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 		return nil, err
 	}
 
-	tweets, _ := parseTimeline(&timeline)
+	tweets, _ := timeline.parseTweets()
 	for _, tweet := range tweets {
 		if tweet.ID == id {
 			return tweet, nil

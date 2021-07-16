@@ -74,7 +74,7 @@ func (s *Scraper) FetchSearchTweets(query string, maxTweetsNbr int, cursor strin
 	if err != nil {
 		return nil, "", err
 	}
-	tweets, nextCursor := parseTimeline(timeline)
+	tweets, nextCursor := timeline.parseTweets()
 	return tweets, nextCursor, nil
 }
 
@@ -84,6 +84,6 @@ func (s *Scraper) FetchSearchProfiles(query string, maxProfilesNbr int, cursor s
 	if err != nil {
 		return nil, "", err
 	}
-	users, nextCursor := parseUsers(timeline)
+	users, nextCursor := timeline.parseUsers()
 	return users, nextCursor, nil
 }
