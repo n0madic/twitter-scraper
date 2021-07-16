@@ -21,26 +21,28 @@ type (
 
 	// Tweet type.
 	Tweet struct {
-		Hashtags     []string
-		HTML         string
-		ID           string
-		IsQuoted     bool
-		IsPin        bool
-		IsReply      bool
-		IsRetweet    bool
-		Likes        int
-		PermanentURL string
-		Photos       []string
-		Replies      int
-		Retweets     int
-		Retweet      *Tweet
-		Text         string
-		TimeParsed   time.Time
-		Timestamp    int64
-		URLs         []string
-		UserID       string
-		Username     string
-		Videos       []Video
+		Hashtags        []string
+		HTML            string
+		ID              string
+		InReplyToStatus *Tweet
+		IsQuoted        bool
+		IsPin           bool
+		IsReply         bool
+		IsRetweet       bool
+		Likes           int
+		PermanentURL    string
+		Photos          []string
+		QuotedStatus    *Tweet
+		Replies         int
+		Retweets        int
+		RetweetedStatus *Tweet
+		Text            string
+		TimeParsed      time.Time
+		Timestamp       int64
+		URLs            []string
+		UserID          string
+		Username        string
+		Videos          []Video
 	}
 
 	// ProfileResult of scrapping.

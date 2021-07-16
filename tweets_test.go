@@ -95,6 +95,40 @@ func TestGetTweet(t *testing.T) {
 	}
 }
 
+func TestQuotedAndReply(t *testing.T) {
+	sample := &Tweet{
+		HTML:         "The Easiest Problem Everyone Gets Wrong <br><br>[new video] --&gt; <a href=\"https://youtu.be/ytfCdqWhmdg\">https://t.co/YdaeDYmPAU</a> <br><a href=\"https://t.co/iKu4Xs6o2V\"><img src=\"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg\"/></a>",
+		ID:           "1237110546383724547",
+		Likes:        484,
+		PermanentURL: "https://twitter.com/VsauceTwo/status/1237110546383724547",
+		Photos:       []string{"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg"},
+		Replies:      12,
+		Retweets:     18,
+		Text:         "The Easiest Problem Everyone Gets Wrong \n\n[new video] --&gt; https://t.co/YdaeDYmPAU https://t.co/iKu4Xs6o2V",
+		TimeParsed:   time.Date(2020, 03, 9, 20, 18, 33, 0, time.FixedZone("UTC", 0)),
+		Timestamp:    1583785113,
+		URLs:         []string{"https://youtu.be/ytfCdqWhmdg"},
+		UserID:       "978944851",
+		Username:     "VsauceTwo",
+	}
+	tweet, err := defaultScraper.GetTweet("1237110897597976576")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if diff := cmp.Diff(sample, tweet.QuotedStatus); diff != "" {
+			t.Error("Resulting quote does not match the sample", diff)
+		}
+	}
+	tweet, err = defaultScraper.GetTweet("1237111868445134850")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if diff := cmp.Diff(sample, tweet.InReplyToStatus); diff != "" {
+			t.Error("Resulting reply does not match the sample", diff)
+		}
+	}
+
+}
 func TestRetweet(t *testing.T) {
 	sample := &Tweet{
 		HTML:         "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
@@ -113,7 +147,7 @@ func TestRetweet(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		if diff := cmp.Diff(sample, tweet.Retweet); diff != "" {
+		if diff := cmp.Diff(sample, tweet.RetweetedStatus); diff != "" {
 			t.Error("Resulting retweet does not match the sample", diff)
 		}
 	}

@@ -167,13 +167,15 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 
 		if tweet.QuotedStatusIDStr != "" {
 			tw.IsQuoted = true
+			tw.QuotedStatus = timeline.parseTweet(tweet.QuotedStatusIDStr)
 		}
 		if tweet.InReplyToStatusIDStr != "" {
 			tw.IsReply = true
+			tw.InReplyToStatus = timeline.parseTweet(tweet.InReplyToStatusIDStr)
 		}
 		if tweet.RetweetedStatusIDStr != "" {
 			tw.IsRetweet = true
-			tw.Retweet = timeline.parseTweet(tweet.RetweetedStatusIDStr)
+			tw.RetweetedStatus = timeline.parseTweet(tweet.RetweetedStatusIDStr)
 		}
 
 		for _, pinned := range timeline.GlobalObjects.Users[tweet.UserIDStr].PinnedTweetIdsStr {
