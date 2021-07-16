@@ -115,6 +115,9 @@ func TestQuotedAndReply(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
+		if !tweet.IsQuoted {
+			t.Error("IsQuoted must be True")
+		}
 		if diff := cmp.Diff(sample, tweet.QuotedStatus); diff != "" {
 			t.Error("Resulting quote does not match the sample", diff)
 		}
@@ -123,6 +126,9 @@ func TestQuotedAndReply(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
+		if !tweet.IsReply {
+			t.Error("IsReply must be True")
+		}
 		if diff := cmp.Diff(sample, tweet.InReplyToStatus); diff != "" {
 			t.Error("Resulting reply does not match the sample", diff)
 		}
@@ -147,6 +153,9 @@ func TestRetweet(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
+		if !tweet.IsRetweet {
+			t.Error("IsRetweet must be True")
+		}
 		if diff := cmp.Diff(sample, tweet.RetweetedStatus); diff != "" {
 			t.Error("Resulting retweet does not match the sample", diff)
 		}
