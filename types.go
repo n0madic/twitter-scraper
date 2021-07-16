@@ -33,7 +33,7 @@ type (
 		Photos       []string
 		Replies      int
 		Retweets     int
-		Retweet      Retweet
+		Retweet      *Tweet
 		Text         string
 		TimeParsed   time.Time
 		Timestamp    int64

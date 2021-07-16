@@ -173,18 +173,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 		}
 		if tweet.RetweetedStatusIDStr != "" {
 			tw.IsRetweet = true
-			if retweet, ok := timeline.GlobalObjects.Tweets[tweet.RetweetedStatusIDStr]; ok {
-				tw.Retweet = Retweet{
-					ID:       tweet.RetweetedStatusIDStr,
-					UserID:   retweet.UserIDStr,
-					Username: timeline.GlobalObjects.Users[retweet.UserIDStr].ScreenName,
-				}
-				tm, err := time.Parse(time.RubyDate, retweet.CreatedAt)
-				if err == nil {
-					tw.Retweet.TimeParsed = tm
-					tw.Retweet.Timestamp = tm.Unix()
-				}
-			}
+			tw.Retweet = timeline.parseTweet(tweet.RetweetedStatusIDStr)
 		}
 
 		for _, pinned := range timeline.GlobalObjects.Users[tweet.UserIDStr].PinnedTweetIdsStr {
