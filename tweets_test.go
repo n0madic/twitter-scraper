@@ -133,7 +133,7 @@ func TestRetweet(t *testing.T) {
 	sample := &Tweet{
 		HTML:         "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
 		ID:           "1359151057872580612",
-		Likes:        6683,
+		Likes:        6682,
 		PermanentURL: "https://twitter.com/TwitterTogether/status/1359151057872580612",
 		Replies:      455,
 		Retweets:     1495,
