@@ -9,6 +9,12 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
+var cmpOptions = cmp.Options{
+	cmpopts.IgnoreFields(Tweet{}, "Likes"),
+	cmpopts.IgnoreFields(Tweet{}, "Replies"),
+	cmpopts.IgnoreFields(Tweet{}, "Retweets"),
+}
+
 func TestGetTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 300
@@ -84,11 +90,6 @@ func TestGetTweet(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		cmpOptions := cmp.Options{
-			cmpopts.IgnoreFields(Tweet{}, "Likes"),
-			cmpopts.IgnoreFields(Tweet{}, "Replies"),
-			cmpopts.IgnoreFields(Tweet{}, "Retweets"),
-		}
 		if diff := cmp.Diff(sample, *tweet, cmpOptions...); diff != "" {
 			t.Error("Resulting tweet does not match the sample", diff)
 		}
@@ -156,7 +157,7 @@ func TestRetweet(t *testing.T) {
 		if !tweet.IsRetweet {
 			t.Error("IsRetweet must be True")
 		}
-		if diff := cmp.Diff(sample, tweet.RetweetedStatus); diff != "" {
+		if diff := cmp.Diff(sample, tweet.RetweetedStatus, cmpOptions...); diff != "" {
 			t.Error("Resulting retweet does not match the sample", diff)
 		}
 	}
