@@ -100,7 +100,7 @@ func TestQuotedAndReply(t *testing.T) {
 	sample := &Tweet{
 		HTML:         "The Easiest Problem Everyone Gets Wrong <br><br>[new video] --&gt; <a href=\"https://youtu.be/ytfCdqWhmdg\">https://t.co/YdaeDYmPAU</a> <br><a href=\"https://t.co/iKu4Xs6o2V\"><img src=\"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg\"/></a>",
 		ID:           "1237110546383724547",
-		Likes:        484,
+		Likes:        485,
 		PermanentURL: "https://twitter.com/VsauceTwo/status/1237110546383724547",
 		Photos:       []string{"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg"},
 		Replies:      12,
