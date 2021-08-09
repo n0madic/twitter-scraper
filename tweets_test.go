@@ -119,7 +119,7 @@ func TestQuotedAndReply(t *testing.T) {
 		if !tweet.IsQuoted {
 			t.Error("IsQuoted must be True")
 		}
-		if diff := cmp.Diff(sample, tweet.QuotedStatus); diff != "" {
+		if diff := cmp.Diff(sample, tweet.QuotedStatus, cmpOptions...); diff != "" {
 			t.Error("Resulting quote does not match the sample", diff)
 		}
 	}
@@ -130,7 +130,7 @@ func TestQuotedAndReply(t *testing.T) {
 		if !tweet.IsReply {
 			t.Error("IsReply must be True")
 		}
-		if diff := cmp.Diff(sample, tweet.InReplyToStatus); diff != "" {
+		if diff := cmp.Diff(sample, tweet.InReplyToStatus, cmpOptions...); diff != "" {
 			t.Error("Resulting reply does not match the sample", diff)
 		}
 	}
