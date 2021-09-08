@@ -3,7 +3,6 @@ package twitterscraper
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 )
 
@@ -42,7 +41,6 @@ func (s *Scraper) FetchTweets(user string, maxTweetsNbr int, cursor string) ([]*
 	req.URL.RawQuery = q.Encode()
 
 	var timeline timeline
-	log.Println(req, timeline, "getuser tww")
 	err = s.RequestAPI(req, &timeline)
 	if err != nil {
 		return nil, "", err
