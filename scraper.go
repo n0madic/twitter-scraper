@@ -3,9 +3,7 @@ package twitterscraper
 import (
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"golang.org/x/net/proxy"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -121,21 +119,31 @@ func (s *Scraper) SetProxy(proxy string) error {
 
 // SetProxy set socks5 proxy in the format `HOST:PORT`
 func (s *Scraper) SetSocks5Proxy(socks5 string) error {
-	log.Println(socks5)
-	if dialer, err := proxy.SOCKS5("tcp", socks5, nil, proxy.Direct); err != nil {
-		return errors.New(fmt.Sprintf("can't connect to the socks5 proxy: %s, err: %s", socks5, err.Error()))
+	baseDialer := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+	if socks5 != "" {
+		dialSocksProxy, err := proxy.SOCKS5("tcp", socks5, nil, baseDialer)
+		if err != nil {
+			return errors.New("Error creating SOCKS5 proxy")
+		}
+		if contextDialer, ok := dialSocksProxy.(proxy.ContextDialer); ok {
+			dialContext := contextDialer.DialContext
+			s.client = &http.Client{
+				Transport: &http.Transport{
+					DialContext: dialContext,
+				},
+			}
+		} else {
+			return errors.New("Failed type assertion to DialContext")
+		}
 	} else {
 		s.client = &http.Client{
 			Transport: &http.Transport{
-				Dial: dialer.Dial,
-				// TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
-				DialContext: (&net.Dialer{
-					Timeout: 10 * time.Second,
-				}).DialContext,
+				DialContext: (baseDialer).DialContext,
 			},
 		}
-
-		log.Println(s.client)
 	}
 	return nil
 }
