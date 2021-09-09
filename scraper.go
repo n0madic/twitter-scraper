@@ -15,6 +15,7 @@ import (
 // Scraper object
 type Scraper struct {
 	client         *http.Client
+	clientTimeout  time.Duration
 	delay          int64
 	guestToken     string
 	guestCreatedAt time.Time
@@ -22,8 +23,8 @@ type Scraper struct {
 	searchMode     SearchMode
 	wg             sync.WaitGroup
 
-	Cookie     string
-	XCsrfToken string
+	cookie     string
+	xCsrfToken string
 }
 
 // SearchMode type
@@ -42,12 +43,16 @@ const (
 	SearchUsers
 )
 
+// default http client timeout
+const DefaultClientTimeout = 10 * time.Second
+
 var defaultScraper *Scraper
 
 // New creates a Scraper object
 func New() *Scraper {
 	return &Scraper{
-		client: &http.Client{Timeout: 10 * time.Second},
+		client:        &http.Client{Timeout: DefaultClientTimeout},
+		clientTimeout: DefaultClientTimeout,
 	}
 }
 
@@ -86,47 +91,51 @@ func WithReplies(b bool) *Scraper {
 
 // cookie
 func (s *Scraper) WithCookie(cookie string) *Scraper {
-	s.Cookie = cookie
+	s.cookie = cookie
 	return s
 }
 
 // x csrf token
 func (s *Scraper) WithXCsrfToken(xcsrfToken string) *Scraper {
-	s.XCsrfToken = xcsrfToken
+	s.xCsrfToken = xcsrfToken
 	return s
 }
 
-// SetProxy set http proxy in the format `http://HOST:PORT`
-func (s *Scraper) SetProxy(proxy string) error {
-	if !strings.HasPrefix(proxy, "http") {
-		return errors.New("only support http(s) protocol")
-	}
-	urlproxy, err := url.Parse(proxy)
-	if err != nil {
-		return err
-	}
-	s.client = &http.Client{
-		Transport: &http.Transport{
-			Proxy:        http.ProxyURL(urlproxy),
-			TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
-			DialContext: (&net.Dialer{
-				Timeout: 10 * time.Second,
-			}).DialContext,
-		},
-	}
-	return nil
+// client timeout
+func (s *Scraper) WithClientTimeout(timeout time.Duration) *Scraper {
+	s.clientTimeout = timeout
+	return s
 }
 
-// SetProxy set socks5 proxy in the format `HOST:PORT`
-func (s *Scraper) SetSocks5Proxy(socks5 string) error {
-	baseDialer := &net.Dialer{
-		Timeout:   30 * time.Second,
-		KeepAlive: 30 * time.Second,
-	}
-	if socks5 != "" {
-		dialSocksProxy, err := proxy.SOCKS5("tcp", socks5, nil, baseDialer)
+// SetProxy
+// set http proxy in the format `http://HOST:PORT`
+// set socket proxy in the format `socks5://HOST:PORT`
+func (s *Scraper) SetProxy(proxyAddr string) error {
+	if strings.HasPrefix(proxyAddr, "http") {
+		urlproxy, err := url.Parse(proxyAddr)
 		if err != nil {
-			return errors.New("Error creating SOCKS5 proxy")
+			return err
+		}
+		s.client = &http.Client{
+			Transport: &http.Transport{
+				Proxy:        http.ProxyURL(urlproxy),
+				TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
+				DialContext: (&net.Dialer{
+					Timeout: s.clientTimeout,
+				}).DialContext,
+			},
+		}
+		return nil
+	}
+	if strings.HasPrefix(proxyAddr, "socks5") {
+		baseDialer := &net.Dialer{
+			Timeout:   s.clientTimeout,
+			KeepAlive: s.clientTimeout,
+		}
+		socksHostPort := strings.ReplaceAll(proxyAddr, "socks5://", "")
+		dialSocksProxy, err := proxy.SOCKS5("tcp", socksHostPort, nil, baseDialer)
+		if err != nil {
+			return errors.New("error creating socks5 proxy :" + err.Error())
 		}
 		if contextDialer, ok := dialSocksProxy.(proxy.ContextDialer); ok {
 			dialContext := contextDialer.DialContext
@@ -136,16 +145,11 @@ func (s *Scraper) SetSocks5Proxy(socks5 string) error {
 				},
 			}
 		} else {
-			return errors.New("Failed type assertion to DialContext")
+			return errors.New("failed type assertion to DialContext")
 		}
-	} else {
-		s.client = &http.Client{
-			Transport: &http.Transport{
-				DialContext: (baseDialer).DialContext,
-			},
-		}
+		return nil
 	}
-	return nil
+	return errors.New("only support http(s) or socks5 protocol")
 }
 
 // SetProxy wrapper for default Scraper
