@@ -203,6 +203,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 				for _, variant := range media.VideoInfo.Variants {
 					if variant.Bitrate > maxBitrate {
 						video.URL = strings.TrimSuffix(variant.URL, "?tag=10")
+						maxBitrate = variant.Bitrate
 					}
 				}
 				tw.Videos = append(tw.Videos, video)
