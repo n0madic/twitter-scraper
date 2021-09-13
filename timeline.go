@@ -42,6 +42,7 @@ type timeline struct {
 				} `json:"media"`
 			} `json:"extended_entities"`
 			InReplyToStatusIDStr string    `json:"in_reply_to_status_id_str"`
+			Place                Place     `json:"place"`
 			ReplyCount           int       `json:"reply_count"`
 			RetweetCount         int       `json:"retweet_count"`
 			RetweetedStatusIDStr string    `json:"retweeted_status_id_str"`
@@ -163,6 +164,10 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 		if err == nil {
 			tw.TimeParsed = tm
 			tw.Timestamp = tm.Unix()
+		}
+
+		if tweet.Place.ID != "" {
+			tw.Place = &tweet.Place
 		}
 
 		if tweet.QuotedStatusIDStr != "" {

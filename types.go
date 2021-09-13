@@ -23,6 +23,7 @@ type (
 		Likes           int
 		PermanentURL    string
 		Photos          []string
+		Place           *Place
 		QuotedStatus    *Tweet
 		Replies         int
 		Retweets        int
@@ -72,6 +73,19 @@ type (
 		ScreenName           string   `json:"screen_name"`
 		StatusesCount        int      `json:"statuses_count"`
 		Verified             bool     `json:"verified"`
+	}
+
+	Place struct {
+		ID          string `json:"id"`
+		PlaceType   string `json:"place_type"`
+		Name        string `json:"name"`
+		FullName    string `json:"full_name"`
+		CountryCode string `json:"country_code"`
+		Country     string `json:"country"`
+		BoundingBox struct {
+			Type        string        `json:"type"`
+			Coordinates [][][]float64 `json:"coordinates"`
+		} `json:"bounding_box"`
 	}
 
 	fetchProfileFunc func(query string, maxProfilesNbr int, cursor string) ([]*Profile, string, error)
