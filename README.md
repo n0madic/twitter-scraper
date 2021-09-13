@@ -29,12 +29,7 @@ import (
 
 func main() {
     scraper := twitterscraper.New()
- 
-    // Cookie and xCsrfToken is optional 
-    // Some specified user tweets are protected that you must login and follow
-    scraper.WithCookie("twitter cookie after login")
-    scraper.WithXCsrfToken("twitter X-Csrf-Token after login")
-  
+
     for tweet := range scraper.GetTweets(context.Background(), "Twitter", 50) {
         if tweet.Error != nil {
             panic(tweet.Error)
@@ -173,11 +168,21 @@ func main() {
 }
 ```
 
+### Use cookie authentication
+
+Some specified user tweets are protected that you must login and follow.
+Cookie and xCsrfToken is optional.
+
+```golang
+scraper.WithCookie("twitter cookie after login")
+scraper.WithXCsrfToken("twitter X-Csrf-Token after login")
+```
+
 ### Use Proxy
 
-Support http and socks5 proxy
+Support HTTP(s) and SOCKS5 proxy
 
-#### with http
+#### with HTTP
 
 ```golang
 err := scraper.SetProxy("http://localhost:3128")
@@ -186,10 +191,10 @@ if err != nil {
 }
 ```
 
-#### with socks5
+#### with SOCKS5
 
 ```golang
-err := scraper.SetProxy("socks5://localhost:3128")
+err := scraper.SetProxy("socks5://localhost:1080")
 if err != nil {
     panic(err)
 }
