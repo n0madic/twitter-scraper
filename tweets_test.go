@@ -83,7 +83,7 @@ func TestGetTweet(t *testing.T) {
 		Videos: []Video{{
 			ID:      "1328684333599756289",
 			Preview: "https://pbs.twimg.com/amplify_video_thumb/1328684333599756289/img/cP5KwbIXbGunNSBy.jpg",
-			URL:     "https://video.twimg.com/amplify_video/1328684333599756289/vid/480x360/Qh70ELAcq-N2RYmZ.mp4?tag=13",
+			URL:     "https://video.twimg.com/amplify_video/1328684333599756289/vid/960x720/PcL8yv8KhgQ48Qpt.mp4?tag=13",
 		}},
 	}
 	tweet, err := defaultScraper.GetTweet("1328684389388185600")
