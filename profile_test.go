@@ -114,8 +114,8 @@ func TestGetProfileErrorSuspended(t *testing.T) {
 	if err == nil {
 		t.Error("Expected Error, got success")
 	} else {
-		if err.Error() != "Authorization: User has been suspended. (63)" {
-			t.Errorf("Expected error 'Authorization: User has been suspended. (63)', got '%s'", err)
+		if err.Error() != "_Missing: User not found." {
+			t.Errorf("Expected error '_Missing: User not found.', got '%s'", err)
 		}
 	}
 }
