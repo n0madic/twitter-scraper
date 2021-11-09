@@ -53,7 +53,7 @@ func TestGetSearchTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)
-	scraper := New().WithDelay(3)
+	scraper := New().WithDelay(4)
 	for tweet := range scraper.SearchTweets(context.Background(), "twitter -filter:retweets", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
