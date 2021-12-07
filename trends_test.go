@@ -1,11 +1,13 @@
-package twitterscraper
+package twitterscraper_test
 
 import (
 	"testing"
+
+	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
 func TestGetTrends(t *testing.T) {
-	trends, err := GetTrends()
+	trends, err := twitterscraper.GetTrends()
 	if err != nil {
 		t.Error(err)
 	}

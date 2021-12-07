@@ -23,7 +23,7 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		}()
 	}
 
-	if s.guestToken == "" || s.guestCreatedAt.Before(time.Now().Add(-time.Hour*3)) {
+	if !s.IsGuestToken() || s.guestCreatedAt.Before(time.Now().Add(-time.Hour*3)) {
 		err := s.GetGuestToken()
 		if err != nil {
 			return err

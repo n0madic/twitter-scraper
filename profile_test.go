@@ -1,4 +1,4 @@
-package twitterscraper
+package twitterscraper_test
 
 import (
 	"fmt"
@@ -7,12 +7,13 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
 func TestGetProfile(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
 	joined := time.Date(2010, 01, 18, 8, 49, 30, 0, loc)
-	sample := Profile{
+	sample := twitterscraper.Profile{
 		Avatar:    "https://pbs.twimg.com/profile_images/436075027193004032/XlDa2oaz_normal.jpeg",
 		Banner:    "https://pbs.twimg.com/profile_banners/106037940/1541084318",
 		Biography: "nothing",
@@ -29,18 +30,18 @@ func TestGetProfile(t *testing.T) {
 		Website:        "https://nomadic.name",
 	}
 
-	profile, err := GetProfile("nomadic_ua")
+	profile, err := twitterscraper.GetProfile("nomadic_ua")
 	if err != nil {
 		t.Error(err)
 	}
 
 	cmpOptions := cmp.Options{
-		cmpopts.IgnoreFields(Profile{}, "FollowersCount"),
-		cmpopts.IgnoreFields(Profile{}, "FollowingCount"),
-		cmpopts.IgnoreFields(Profile{}, "FriendsCount"),
-		cmpopts.IgnoreFields(Profile{}, "LikesCount"),
-		cmpopts.IgnoreFields(Profile{}, "ListedCount"),
-		cmpopts.IgnoreFields(Profile{}, "TweetsCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "FollowersCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "FollowingCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "FriendsCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "LikesCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "ListedCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "TweetsCount"),
 	}
 	if diff := cmp.Diff(sample, profile, cmpOptions...); diff != "" {
 		t.Error("Resulting profile does not match the sample", diff)
@@ -63,7 +64,7 @@ func TestGetProfile(t *testing.T) {
 func TestGetProfilePrivate(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
 	joined := time.Date(2020, 1, 26, 0, 3, 5, 0, loc)
-	sample := Profile{
+	sample := twitterscraper.Profile{
 		Avatar:    "https://pbs.twimg.com/profile_images/1222218816484020224/ik9P1QZt_normal.jpg",
 		Banner:    "",
 		Biography: "private account",
@@ -81,18 +82,18 @@ func TestGetProfilePrivate(t *testing.T) {
 	}
 
 	// some random private profile (found via google)
-	profile, err := GetProfile("tomdumont")
+	profile, err := twitterscraper.GetProfile("tomdumont")
 	if err != nil {
 		t.Error(err)
 	}
 
 	cmpOptions := cmp.Options{
-		cmpopts.IgnoreFields(Profile{}, "FollowersCount"),
-		cmpopts.IgnoreFields(Profile{}, "FollowingCount"),
-		cmpopts.IgnoreFields(Profile{}, "FriendsCount"),
-		cmpopts.IgnoreFields(Profile{}, "LikesCount"),
-		cmpopts.IgnoreFields(Profile{}, "ListedCount"),
-		cmpopts.IgnoreFields(Profile{}, "TweetsCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "FollowersCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "FollowingCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "FriendsCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "LikesCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "ListedCount"),
+		cmpopts.IgnoreFields(twitterscraper.Profile{}, "TweetsCount"),
 	}
 	if diff := cmp.Diff(sample, profile, cmpOptions...); diff != "" {
 		t.Error("Resulting profile does not match the sample", diff)
@@ -110,7 +111,7 @@ func TestGetProfilePrivate(t *testing.T) {
 }
 
 func TestGetProfileErrorSuspended(t *testing.T) {
-	_, err := GetProfile("123")
+	_, err := twitterscraper.GetProfile("123")
 	if err == nil {
 		t.Error("Expected Error, got success")
 	} else {
@@ -123,7 +124,7 @@ func TestGetProfileErrorSuspended(t *testing.T) {
 func TestGetProfileErrorNotFound(t *testing.T) {
 	neUser := "sample3123131"
 	expectedError := fmt.Sprintf("User '%s' not found", neUser)
-	_, err := GetProfile(neUser)
+	_, err := twitterscraper.GetProfile(neUser)
 	if err == nil {
 		t.Error("Expected Error, got success")
 	} else {
@@ -134,7 +135,7 @@ func TestGetProfileErrorNotFound(t *testing.T) {
 }
 
 func TestGetUserIDByScreenName(t *testing.T) {
-	scraper := New()
+	scraper := twitterscraper.New()
 	userID, err := scraper.GetUserIDByScreenName("Twitter")
 	if err != nil {
 		t.Errorf("getUserByScreenName() error = %v", err)

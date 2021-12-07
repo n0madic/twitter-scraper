@@ -3,13 +3,14 @@ package twitterscraper
 import (
 	"crypto/tls"
 	"errors"
-	"golang.org/x/net/proxy"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/net/proxy"
 )
 
 // Scraper object
@@ -54,6 +55,11 @@ func New() *Scraper {
 		client:        &http.Client{Timeout: DefaultClientTimeout},
 		clientTimeout: DefaultClientTimeout,
 	}
+}
+
+// IsGuestToken check if guest token not empty
+func (s *Scraper) IsGuestToken() bool {
+	return s.guestToken != ""
 }
 
 // SetSearchMode switcher

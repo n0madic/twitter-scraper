@@ -1,12 +1,14 @@
-package twitterscraper
+package twitterscraper_test
 
 import (
 	"context"
 	"testing"
+
+	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
 func TestFetchSearchCursor(t *testing.T) {
-	scraper := New()
+	scraper := twitterscraper.New()
 	maxTweetsNbr := 150
 	tweetsNbr := 0
 	nextCursor := ""
@@ -27,7 +29,7 @@ func TestGetSearchProfiles(t *testing.T) {
 	count := 0
 	maxProfilesNbr := 150
 	dupcheck := make(map[string]bool)
-	scraper := New().SetSearchMode(SearchUsers)
+	scraper := twitterscraper.New().SetSearchMode(twitterscraper.SearchUsers)
 	for profile := range scraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
 		if profile.Error != nil {
 			t.Error(profile.Error)
@@ -53,7 +55,7 @@ func TestGetSearchTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)
-	scraper := New().WithDelay(4)
+	scraper := twitterscraper.New().WithDelay(4)
 	for tweet := range scraper.SearchTweets(context.Background(), "twitter -filter:retweets", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
