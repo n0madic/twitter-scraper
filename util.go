@@ -29,6 +29,7 @@ func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
 	q.Add("include_mute_edge", "1")
 	q.Add("include_can_dm", "1")
 	q.Add("include_can_media_tag", "1")
+	q.Add("include_ext_has_nft_avatar", "1")
 	q.Add("skip_status", "1")
 	q.Add("cards_platform", "Web-12")
 	q.Add("include_cards", "1")
@@ -40,10 +41,11 @@ func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
 	q.Add("include_user_entities", "true")
 	q.Add("include_ext_media_color", "true")
 	q.Add("include_ext_media_availability", "true")
+	q.Add("include_ext_sensitive_media_warning", "true")
 	q.Add("send_error_codes", "true")
 	q.Add("simple_quoted_tweet", "true")
 	q.Add("include_tweet_replies", strconv.FormatBool(s.includeReplies))
-	q.Add("ext", "mediaStats,highlightedLabel")
+	q.Add("ext", "mediaStats,highlightedLabel,hasNftAvatar,voiceInfo,superFollowMetadata")
 	req.URL.RawQuery = q.Encode()
 
 	return req, nil
