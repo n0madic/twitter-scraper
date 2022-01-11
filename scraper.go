@@ -16,7 +16,6 @@ import (
 // Scraper object
 type Scraper struct {
 	client         *http.Client
-	clientTimeout  time.Duration
 	delay          int64
 	guestToken     string
 	guestCreatedAt time.Time
@@ -52,8 +51,7 @@ var defaultScraper *Scraper
 // New creates a Scraper object
 func New() *Scraper {
 	return &Scraper{
-		client:        &http.Client{Timeout: DefaultClientTimeout},
-		clientTimeout: DefaultClientTimeout,
+		client: &http.Client{Timeout: DefaultClientTimeout},
 	}
 }
 
@@ -109,7 +107,7 @@ func (s *Scraper) WithXCsrfToken(xcsrfToken string) *Scraper {
 
 // client timeout
 func (s *Scraper) WithClientTimeout(timeout time.Duration) *Scraper {
-	s.clientTimeout = timeout
+	s.client.Timeout = timeout
 	return s
 }
 
@@ -127,7 +125,7 @@ func (s *Scraper) SetProxy(proxyAddr string) error {
 				Proxy:        http.ProxyURL(urlproxy),
 				TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
 				DialContext: (&net.Dialer{
-					Timeout: s.clientTimeout,
+					Timeout: s.client.Timeout,
 				}).DialContext,
 			},
 		}
@@ -135,8 +133,8 @@ func (s *Scraper) SetProxy(proxyAddr string) error {
 	}
 	if strings.HasPrefix(proxyAddr, "socks5") {
 		baseDialer := &net.Dialer{
-			Timeout:   s.clientTimeout,
-			KeepAlive: s.clientTimeout,
+			Timeout:   s.client.Timeout,
+			KeepAlive: s.client.Timeout,
 		}
 		socksHostPort := strings.ReplaceAll(proxyAddr, "socks5://", "")
 		dialSocksProxy, err := proxy.SOCKS5("tcp", socksHostPort, nil, baseDialer)
