@@ -30,10 +30,15 @@ type timeline struct {
 			} `json:"entities"`
 			ExtendedEntities struct {
 				Media []struct {
-					IDStr         string `json:"id_str"`
-					MediaURLHttps string `json:"media_url_https"`
-					Type          string `json:"type"`
-					VideoInfo     struct {
+					IDStr                    string `json:"id_str"`
+					MediaURLHttps            string `json:"media_url_https"`
+					ExtSensitiveMediaWarning struct {
+						AdultContent    bool `json:"adult_content"`
+						GraphicViolence bool `json:"graphic_violence"`
+						Other           bool `json:"other"`
+					} `json:"ext_sensitive_media_warning"`
+					Type      string `json:"type"`
+					VideoInfo struct {
 						Variants []struct {
 							Bitrate int    `json:"bitrate,omitempty"`
 							URL     string `json:"url"`
@@ -211,9 +216,16 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 						maxBitrate = variant.Bitrate
 					}
 				}
+
 				tw.Videos = append(tw.Videos, video)
 			}
+
+			if !tw.SensitiveContent {
+				sensitive := media.ExtSensitiveMediaWarning
+				tw.SensitiveContent = sensitive.AdultContent || sensitive.GraphicViolence || sensitive.Other
+			}
 		}
+
 		for _, url := range tweet.Entities.URLs {
 			tw.URLs = append(tw.URLs, url.ExpandedURL)
 		}
