@@ -1,5 +1,7 @@
 package twitterscraper
 
+import "fmt"
+
 // GetTrends return list of trends.
 func (s *Scraper) GetTrends() ([]string, error) {
 	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/guide.json")
@@ -18,6 +20,10 @@ func (s *Scraper) GetTrends() ([]string, error) {
 	err = s.RequestAPI(req, &jsn)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(jsn.Timeline.Instructions[1].AddEntries.Entries) < 2 {
+		return nil, fmt.Errorf("no trend entries found")
 	}
 
 	var trends []string
