@@ -38,6 +38,7 @@ type timeline struct {
 						Other           bool `json:"other"`
 					} `json:"ext_sensitive_media_warning"`
 					Type      string `json:"type"`
+					URL       string `json:"url"`
 					VideoInfo struct {
 						Variants []struct {
 							Bitrate int    `json:"bitrate,omitempty"`
@@ -202,9 +203,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 		for _, media := range tweet.ExtendedEntities.Media {
 			if media.Type == "photo" {
 				tw.Photos = append(tw.Photos, media.MediaURLHttps)
-			}
-
-			if media.Type == "video" {
+			} else if media.Type == "video" {
 				video := Video{
 					ID:      media.IDStr,
 					Preview: media.MediaURLHttps,
@@ -251,7 +250,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 					return fmt.Sprintf(`<a href="%s">%s</a>`, entity.ExpandedURL, tco)
 				}
 			}
-			for _, entity := range tweet.Entities.Media {
+			for _, entity := range tweet.ExtendedEntities.Media {
 				if tco == entity.URL {
 					return fmt.Sprintf(`<br><a href="%s"><img src="%s"/></a>`, tco, entity.MediaURLHttps)
 				}
