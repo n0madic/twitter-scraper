@@ -244,6 +244,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 				username,
 			)
 		})
+		var foundedMedia []string
 		tw.HTML = reTwitterURL.ReplaceAllStringFunc(tw.HTML, func(tco string) string {
 			for _, entity := range tweet.Entities.URLs {
 				if tco == entity.URL {
@@ -252,11 +253,18 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 			}
 			for _, entity := range tweet.ExtendedEntities.Media {
 				if tco == entity.URL {
+					foundedMedia = append(foundedMedia, entity.MediaURLHttps)
 					return fmt.Sprintf(`<br><a href="%s"><img src="%s"/></a>`, tco, entity.MediaURLHttps)
 				}
 			}
 			return tco
 		})
+		for _, url := range tw.Photos {
+			if stringInSlice(url, foundedMedia) {
+				continue
+			}
+			tw.HTML += fmt.Sprintf(`<br><img src="%s"/>`, url)
+		}
 		tw.HTML = strings.Replace(tw.HTML, "\n", "<br>", -1)
 		return tw
 	}
