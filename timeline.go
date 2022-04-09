@@ -198,17 +198,18 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 		for _, hash := range tweet.Entities.Hashtags {
 			tw.Hashtags = append(tw.Hashtags, hash.Text)
 		}
-		for _, media := range tweet.Entities.Media {
+
+		for _, media := range tweet.ExtendedEntities.Media {
 			if media.Type == "photo" {
 				tw.Photos = append(tw.Photos, media.MediaURLHttps)
 			}
-		}
-		for _, media := range tweet.ExtendedEntities.Media {
+
 			if media.Type == "video" {
 				video := Video{
 					ID:      media.IDStr,
 					Preview: media.MediaURLHttps,
 				}
+
 				maxBitrate := 0
 				for _, variant := range media.VideoInfo.Variants {
 					if variant.Bitrate > maxBitrate {
@@ -217,6 +218,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 					}
 				}
 
+				tw.Photos = append(tw.Photos, video.Preview)
 				tw.Videos = append(tw.Videos, video)
 			}
 
