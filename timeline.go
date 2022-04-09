@@ -218,6 +218,7 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 					}
 				}
 
+				tw.Photos = append(tw.Photos, video.Preview)
 				tw.Videos = append(tw.Videos, video)
 			}
 
