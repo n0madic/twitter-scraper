@@ -72,13 +72,12 @@ func (s *Scraper) GetGuestToken() error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		content, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("response status %s: %s", resp.Status, content)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("response status %s: %s", resp.Status, body)
 	}
 
 	var jsn map[string]interface{}
