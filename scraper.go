@@ -15,6 +15,7 @@ import (
 
 // Scraper object
 type Scraper struct {
+	bearerToken    string
 	client         *http.Client
 	delay          int64
 	guestToken     string
@@ -51,8 +52,14 @@ var defaultScraper *Scraper
 // New creates a Scraper object
 func New() *Scraper {
 	return &Scraper{
-		client: &http.Client{Timeout: DefaultClientTimeout},
+		bearerToken: bearerToken,
+		client:      &http.Client{Timeout: DefaultClientTimeout},
 	}
+}
+
+func (s *Scraper) setBearerToken(token string) {
+	s.bearerToken = token
+	s.guestToken = ""
 }
 
 // IsGuestToken check if guest token not empty

@@ -30,7 +30,7 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		}
 	}
 
-	req.Header.Set("Authorization", "Bearer "+bearerToken)
+	req.Header.Set("Authorization", "Bearer "+s.bearerToken)
 	req.Header.Set("X-Guest-Token", s.guestToken)
 
 	// use cookie
@@ -64,7 +64,7 @@ func (s *Scraper) GetGuestToken() error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", "Bearer "+bearerToken)
+	req.Header.Set("Authorization", "Bearer "+s.bearerToken)
 
 	resp, err := s.client.Do(req)
 	if err != nil {
