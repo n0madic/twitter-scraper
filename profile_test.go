@@ -67,7 +67,7 @@ func TestGetProfilePrivate(t *testing.T) {
 	sample := twitterscraper.Profile{
 		Avatar:    "https://pbs.twimg.com/profile_images/1222218816484020224/ik9P1QZt_normal.jpg",
 		Banner:    "",
-		Biography: "private account",
+		Biography: "Quien es mas macho",
 		//	Birthday:   "March 21",
 		IsPrivate:      true,
 		IsVerified:     false,
