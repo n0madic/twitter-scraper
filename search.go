@@ -2,7 +2,6 @@ package twitterscraper
 
 import (
 	"context"
-	"net/url"
 	"strconv"
 )
 
@@ -28,7 +27,6 @@ func SearchProfiles(ctx context.Context, query string, maxProfilesNbr int) <-cha
 
 // getSearchTimeline gets results for a given search query, via the Twitter frontend API
 func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*timeline, error) {
-	query = url.PathEscape(query)
 	if maxNbr > 50 {
 		maxNbr = 50
 	}
