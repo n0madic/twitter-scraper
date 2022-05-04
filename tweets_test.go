@@ -20,7 +20,8 @@ func TestGetTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 300
 	dupcheck := make(map[string]bool)
-	for tweet := range twitterscraper.GetTweets(context.Background(), "Twitter", maxTweetsNbr) {
+	scraper := twitterscraper.New()
+	for tweet := range scraper.GetTweets(context.Background(), "Twitter", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {
@@ -87,7 +88,8 @@ func TestGetTweet(t *testing.T) {
 			URL:     "https://video.twimg.com/amplify_video/1328684333599756289/vid/960x720/PcL8yv8KhgQ48Qpt.mp4?tag=13",
 		}},
 	}
-	tweet, err := twitterscraper.GetTweet("1328684389388185600")
+	scraper := twitterscraper.New()
+	tweet, err := scraper.GetTweet("1328684389388185600")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -113,7 +115,8 @@ func TestQuotedAndReply(t *testing.T) {
 		UserID:       "978944851",
 		Username:     "VsauceTwo",
 	}
-	tweet, err := twitterscraper.GetTweet("1237110897597976576")
+	scraper := twitterscraper.New()
+	tweet, err := scraper.GetTweet("1237110897597976576")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -124,7 +127,7 @@ func TestQuotedAndReply(t *testing.T) {
 			t.Error("Resulting quote does not match the sample", diff)
 		}
 	}
-	tweet, err = twitterscraper.GetTweet("1237111868445134850")
+	tweet, err = scraper.GetTweet("1237111868445134850")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -151,7 +154,8 @@ func TestRetweet(t *testing.T) {
 		UserID:       "773578328498372608",
 		Username:     "TwitterTogether",
 	}
-	tweet, err := twitterscraper.GetTweet("1362849141248974853")
+	scraper := twitterscraper.New()
+	tweet, err := scraper.GetTweet("1362849141248974853")
 	if err != nil {
 		t.Error(err)
 	} else {

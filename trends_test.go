@@ -7,7 +7,8 @@ import (
 )
 
 func TestGetTrends(t *testing.T) {
-	trends, err := twitterscraper.GetTrends()
+	scraper := twitterscraper.New()
+	trends, err := scraper.GetTrends()
 	if err != nil {
 		t.Error(err)
 	}

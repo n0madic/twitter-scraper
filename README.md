@@ -213,25 +213,3 @@ scraper.WithDelay(5)
 ```golang
 scraper.WithReplies(true)
 ```
-
-### Default Scraper (Ad hoc)
-
-In simple cases, you can use the default scraper without creating an object instance
-
-```golang
-import twitterscraper "github.com/n0madic/twitter-scraper"
-
-// for tweets
-twitterscraper.GetTweets(context.Background(), "Twitter", 50)
-// for tweets with replies
-twitterscraper.WithReplies(true).GetTweets(context.Background(), "Twitter", 50)
-
-// for search
-twitterscraper.SearchTweets(context.Background(), "twitter", 50)
-
-// for profile
-twitterscraper.GetProfile("Twitter")
-
-// for trends
-twitterscraper.GetTrends()
-```
