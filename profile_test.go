@@ -66,14 +66,14 @@ func TestGetProfilePrivate(t *testing.T) {
 	loc := time.FixedZone("UTC", 0)
 	joined := time.Date(2020, 1, 26, 0, 3, 5, 0, loc)
 	sample := twitterscraper.Profile{
-		Avatar:    "https://pbs.twimg.com/profile_images/1222218816484020224/ik9P1QZt_normal.jpg",
-		Banner:    "",
-		Biography: `"Beware that, when fighting monsters, you yourself do not become a monster... for when you gaze long into the abyss. The abyss gazes also into you." -Nietzsche`,
+		Avatar:    "https://pbs.twimg.com/profile_images/1612213936082030594/_HEsjv7Q_normal.jpg",
+		Banner:    "https://pbs.twimg.com/profile_banners/1221221876849995777/1673110776",
+		Biography: "t h e h e r m i t",
 		//	Birthday:   "March 21",
 		IsPrivate:      true,
 		IsVerified:     false,
 		Joined:         &joined,
-		Location:       "",
+		Location:       "sometimes",
 		Name:           "private account",
 		PinnedTweetIDs: []string{},
 		URL:            "https://twitter.com/tomdumont",
