@@ -41,7 +41,9 @@ func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*t
 	q.Add("count", strconv.Itoa(maxNbr))
 	q.Add("query_source", "typed_query")
 	q.Add("pc", "1")
+	q.Add("requestContext", "launch")
 	q.Add("spelling_corrections", "1")
+	q.Add("include_ext_edit_control", "true")
 	if cursor != "" {
 		q.Add("cursor", cursor)
 	}
