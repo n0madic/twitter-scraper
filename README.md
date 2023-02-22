@@ -7,6 +7,21 @@ luckily their frontend (JavaScript) has it's own API, which I reverse-engineered
 No API rate limits. No tokens needed. No restrictions. Extremely fast.
 
 You can use this library to get the text of any user's Tweets trivially.
+## Prerequisites before downloading the Twitter Scraper
+Install Go from the website
+
+### Enable dependency tracking for your code
+For enabling dependency tracking of the code you have to create a go.mod file
+Run the command 
+```
+go mod init [path-to-module]
+```
+path-to-module needs to be the location of a remote repository from where Go can download the source code.
+Typically, it's of the format
+```
+<prefix>/<descriptive-text>
+```
+Example: github.com/<project-name>
 
 ## Installation
 
