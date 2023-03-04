@@ -2,6 +2,7 @@ package twitterscraper_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	twitterscraper "github.com/n0madic/twitter-scraper"
@@ -16,6 +17,9 @@ func TestFetchSearchCursor(t *testing.T) {
 		tweets, cursor, err := scraper.FetchSearchTweets("twitter", maxTweetsNbr, nextCursor)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if strings.HasPrefix(cursor, "scroll:") {
+			continue
 		}
 		if cursor == "" {
 			t.Fatal("Expected search cursor is empty")
