@@ -49,7 +49,7 @@ func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*t
 	}
 	switch s.searchMode {
 	case SearchLatest:
-		q.Add("tweet_search_mode", "live")
+		q.Add("f", "live")
 	case SearchPhotos:
 		q.Add("result_filter", "image")
 	case SearchVideos:
