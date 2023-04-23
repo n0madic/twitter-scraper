@@ -2,8 +2,6 @@ package twitterscraper
 
 import "fmt"
 
-var bearerToken2 = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
-
 // GetTrends return list of trends.
 func (s *Scraper) GetTrends() ([]string, error) {
 	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/guide.json")

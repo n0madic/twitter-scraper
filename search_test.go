@@ -2,19 +2,32 @@ package twitterscraper_test
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 
 	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
+var searchScraper = twitterscraper.New()
+
+func authSearchScraper() error {
+	if searchScraper.IsLoggedIn() {
+		return nil
+	}
+	return searchScraper.Login(os.Getenv("TWITTER_USERNAME"), os.Getenv("TWITTER_PASSWORD"))
+}
+
 func TestFetchSearchCursor(t *testing.T) {
-	scraper := twitterscraper.New()
+	err := authSearchScraper()
+	if err != nil {
+		t.Fatal(err)
+	}
 	maxTweetsNbr := 150
 	tweetsNbr := 0
 	nextCursor := ""
 	for tweetsNbr < maxTweetsNbr {
-		tweets, cursor, err := scraper.FetchSearchTweets("twitter", maxTweetsNbr, nextCursor)
+		tweets, cursor, err := searchScraper.FetchSearchTweets("twitter", maxTweetsNbr, nextCursor)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -33,8 +46,11 @@ func TestGetSearchProfiles(t *testing.T) {
 	count := 0
 	maxProfilesNbr := 150
 	dupcheck := make(map[string]bool)
-	scraper := twitterscraper.New().SetSearchMode(twitterscraper.SearchUsers)
-	for profile := range scraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
+	err := authSearchScraper()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for profile := range searchScraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
 		if profile.Error != nil {
 			t.Error(profile.Error)
 		} else {
@@ -59,8 +75,11 @@ func TestGetSearchTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)
-	scraper := twitterscraper.New().WithDelay(4)
-	for tweet := range scraper.SearchTweets(context.Background(), "twitter", maxTweetsNbr) {
+	err := authSearchScraper()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for tweet := range searchScraper.SearchTweets(context.Background(), "twitter", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {

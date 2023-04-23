@@ -33,10 +33,11 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 	req.Header.Set("Authorization", "Bearer "+s.bearerToken)
 	req.Header.Set("X-Guest-Token", s.guestToken)
 
-	// use cookie
-	if len(s.cookie) > 0 && len(s.xCsrfToken) > 0 {
-		req.Header.Set("Cookie", s.cookie)
-		req.Header.Set("x-csrf-token", s.xCsrfToken)
+	for _, cookie := range s.client.Jar.Cookies(req.URL) {
+		if cookie.Name == "ct0" {
+			req.Header.Set("X-CSRF-Token", cookie.Value)
+			break
+		}
 	}
 
 	resp, err := s.client.Do(req)
@@ -55,7 +56,13 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		s.guestToken = ""
 	}
 
-	return json.NewDecoder(resp.Body).Decode(target)
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	// fmt.Println(string(b))
+
+	return json.Unmarshal(b, target)
 }
 
 // GetGuestToken from Twitter API

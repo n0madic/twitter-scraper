@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
 	"sync"
@@ -21,11 +22,9 @@ type Scraper struct {
 	guestToken     string
 	guestCreatedAt time.Time
 	includeReplies bool
+	isLogged       bool
 	searchMode     SearchMode
 	wg             sync.WaitGroup
-
-	cookie     string
-	xCsrfToken string
 }
 
 // SearchMode type
@@ -51,9 +50,13 @@ var defaultScraper *Scraper
 
 // New creates a Scraper object
 func New() *Scraper {
+	jar, _ := cookiejar.New(nil)
 	return &Scraper{
 		bearerToken: bearerToken,
-		client:      &http.Client{Timeout: DefaultClientTimeout},
+		client: &http.Client{
+			Jar:     jar,
+			Timeout: DefaultClientTimeout,
+		},
 	}
 }
 
@@ -98,18 +101,6 @@ func (s *Scraper) WithReplies(b bool) *Scraper {
 // Deprecated: WithReplies wrapper for default Scraper
 func WithReplies(b bool) *Scraper {
 	return defaultScraper.WithReplies(b)
-}
-
-// cookie
-func (s *Scraper) WithCookie(cookie string) *Scraper {
-	s.cookie = cookie
-	return s
-}
-
-// x csrf token
-func (s *Scraper) WithXCsrfToken(xcsrfToken string) *Scraper {
-	s.xCsrfToken = xcsrfToken
-	return s
 }
 
 // client timeout

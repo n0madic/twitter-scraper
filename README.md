@@ -168,14 +168,25 @@ func main() {
 }
 ```
 
-### Use cookie authentication
+### Use authentication
 
 Some specified user tweets are protected that you must login and follow.
-Cookie and xCsrfToken is optional.
+It is also required to search.
 
 ```golang
-scraper.WithCookie("twitter cookie after login")
-scraper.WithXCsrfToken("twitter X-Csrf-Token after login")
+err := scraper.Login("username", "password")
+```
+
+Status of login can be checked with:
+
+```golang
+scraper.IsLoggedIn()
+```
+
+Logout (clear session):
+
+```golang
+scraper.Logout()
 ```
 
 ### Use Proxy
