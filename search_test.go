@@ -3,7 +3,6 @@ package twitterscraper_test
 import (
 	"context"
 	"os"
-	"strings"
 	"testing"
 
 	twitterscraper "github.com/n0madic/twitter-scraper"
@@ -31,9 +30,6 @@ func TestFetchSearchCursor(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if strings.HasPrefix(cursor, "scroll:") {
-			continue
-		}
 		if cursor == "" {
 			t.Fatal("Expected search cursor is empty")
 		}
@@ -50,6 +46,7 @@ func TestGetSearchProfiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	searchScraper.SetSearchMode(twitterscraper.SearchUsers)
 	for profile := range searchScraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
 		if profile.Error != nil {
 			t.Error(profile.Error)
@@ -79,6 +76,7 @@ func TestGetSearchTweets(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	searchScraper.SetSearchMode(twitterscraper.SearchLatest)
 	for tweet := range searchScraper.SearchTweets(context.Background(), "twitter", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)

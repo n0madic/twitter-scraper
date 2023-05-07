@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -82,10 +81,6 @@ func getUserTimeline(ctx context.Context, query string, maxProfilesNbr int, fetc
 				break
 			}
 
-			if strings.HasPrefix(next, "scroll:") {
-				continue
-			}
-
 			for _, profile := range profiles {
 				select {
 				case <-ctx.Done():
@@ -129,10 +124,6 @@ func getTweetTimeline(ctx context.Context, query string, maxTweetsNbr int, fetch
 
 			if len(tweets) == 0 {
 				break
-			}
-
-			if strings.HasPrefix(next, "scroll:") {
-				continue
 			}
 
 			for _, tweet := range tweets {
