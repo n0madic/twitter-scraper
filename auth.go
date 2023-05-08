@@ -13,14 +13,23 @@ const (
 	bearerToken2 = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
 )
 
-type flow struct {
-	Errors []struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-	} `json:"errors"`
-	FlowToken string `json:"flow_token"`
-	Status    string `json:"status"`
-}
+type (
+	flow struct {
+		Errors []struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		} `json:"errors"`
+		FlowToken string `json:"flow_token"`
+		Status    string `json:"status"`
+	}
+
+	verifyCredentials struct {
+		Errors []struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		} `json:"errors"`
+	}
+)
 
 func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 	headers := http.Header{
@@ -64,6 +73,17 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 
 // IsLoggedIn check if scraper logged in
 func (s *Scraper) IsLoggedIn() bool {
+	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/account/verify_credentials.json", nil)
+	if err != nil {
+		return false
+	}
+	var verify verifyCredentials
+	err = s.RequestAPI(req, &verify)
+	if err != nil || verify.Errors != nil {
+		s.isLogged = false
+	} else {
+		s.isLogged = true
+	}
 	return s.isLogged
 }
 
