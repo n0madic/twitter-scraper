@@ -118,14 +118,12 @@ func (s *Scraper) SetProxy(proxyAddr string) error {
 		if err != nil {
 			return err
 		}
-		s.client = &http.Client{
-			Transport: &http.Transport{
-				Proxy:        http.ProxyURL(urlproxy),
-				TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
-				DialContext: (&net.Dialer{
-					Timeout: s.client.Timeout,
-				}).DialContext,
-			},
+		s.client.Transport = &http.Transport{
+			Proxy:        http.ProxyURL(urlproxy),
+			TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
+			DialContext: (&net.Dialer{
+				Timeout: s.client.Timeout,
+			}).DialContext,
 		}
 		return nil
 	}
@@ -141,10 +139,8 @@ func (s *Scraper) SetProxy(proxyAddr string) error {
 		}
 		if contextDialer, ok := dialSocksProxy.(proxy.ContextDialer); ok {
 			dialContext := contextDialer.DialContext
-			s.client = &http.Client{
-				Transport: &http.Transport{
-					DialContext: dialContext,
-				},
+			s.client.Transport = &http.Transport{
+				DialContext: dialContext,
 			}
 		} else {
 			return errors.New("failed type assertion to DialContext")
