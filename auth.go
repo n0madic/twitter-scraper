@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/cookiejar"
+	"strings"
 )
 
 const (
@@ -73,6 +74,8 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 
 // IsLoggedIn check if scraper logged in
 func (s *Scraper) IsLoggedIn() bool {
+	s.isLogged = true
+	s.setBearerToken(bearerToken2)
 	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/account/verify_credentials.json", nil)
 	if err != nil {
 		return false
@@ -81,6 +84,7 @@ func (s *Scraper) IsLoggedIn() bool {
 	err = s.RequestAPI(req, &verify)
 	if err != nil || verify.Errors != nil {
 		s.isLogged = false
+		s.setBearerToken(bearerToken)
 	} else {
 		s.isLogged = true
 	}
@@ -189,4 +193,20 @@ func (s *Scraper) Logout() {
 	s.guestToken = ""
 	s.client.Jar, _ = cookiejar.New(nil)
 	s.setBearerToken(bearerToken)
+}
+
+func (s *Scraper) GetCookies() []*http.Cookie {
+	var cookies []*http.Cookie
+	for _, cookie := range s.client.Jar.Cookies(twURL) {
+		if strings.Contains(cookie.Name, "guest") {
+			continue
+		}
+		cookie.Domain = twURL.Host
+		cookies = append(cookies, cookie)
+	}
+	return cookies
+}
+
+func (s *Scraper) SetCookies(cookies []*http.Cookie) {
+	s.client.Jar.SetCookies(twURL, cookies)
 }

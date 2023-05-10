@@ -23,15 +23,17 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		}()
 	}
 
-	if !s.IsGuestToken() || s.guestCreatedAt.Before(time.Now().Add(-time.Hour*3)) {
-		err := s.GetGuestToken()
-		if err != nil {
-			return err
+	if !s.isLogged {
+		if !s.IsGuestToken() || s.guestCreatedAt.Before(time.Now().Add(-time.Hour*3)) {
+			err := s.GetGuestToken()
+			if err != nil {
+				return err
+			}
 		}
+		req.Header.Set("X-Guest-Token", s.guestToken)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+s.bearerToken)
-	req.Header.Set("X-Guest-Token", s.guestToken)
 
 	for _, cookie := range s.client.Jar.Cookies(req.URL) {
 		if cookie.Name == "ct0" {

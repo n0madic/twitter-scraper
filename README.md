@@ -189,6 +189,32 @@ Logout (clear session):
 scraper.Logout()
 ```
 
+If you want save session between restarts, you can save cookies with `scraper.GetCookies()` and restore with `scraper.SetCookies()`.
+
+For example, save cookies:
+
+```golang
+cookies := scraper.GetCookies()
+// serialize to JSON
+js, _ := json.Marshal(cookies)
+// save to file
+f, _ = os.Create("cookies.json")
+f.Write(js)
+```
+
+and load cookies:
+
+```golang
+f, _ := os.Open("cookies.json")
+// deserialize from JSON
+var cookies []*http.Cookie
+json.NewDecoder(f).Decode(&cookies)
+// load cookies
+scraper.SetCookies(cookies)
+// check login status
+scraper.IsLoggedIn()
+```
+
 ### Use Proxy
 
 Support HTTP(s) and SOCKS5 proxy

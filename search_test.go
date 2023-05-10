@@ -2,7 +2,6 @@ package twitterscraper_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	twitterscraper "github.com/n0madic/twitter-scraper"
@@ -14,7 +13,7 @@ func authSearchScraper() error {
 	if searchScraper.IsLoggedIn() {
 		return nil
 	}
-	return searchScraper.Login(os.Getenv("TWITTER_USERNAME"), os.Getenv("TWITTER_PASSWORD"))
+	return searchScraper.Login(username, password)
 }
 
 func TestFetchSearchCursor(t *testing.T) {

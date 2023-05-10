@@ -3,6 +3,7 @@ package twitterscraper
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
 	"time"
@@ -12,6 +13,7 @@ var (
 	reHashtag    = regexp.MustCompile(`\B(\#\S+\b)`)
 	reTwitterURL = regexp.MustCompile(`https:(\/\/t\.co\/([A-Za-z0-9]|[A-Za-z]){10})`)
 	reUsername   = regexp.MustCompile(`\B(\@\S{1,15}\b)`)
+	twURL        = urlParse("https://twitter.com")
 )
 
 func (s *Scraper) newRequest(method string, url string) (*http.Request, error) {
@@ -191,4 +193,12 @@ func stringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func urlParse(u string) *url.URL {
+	parsed, err := url.Parse(u)
+	if err != nil {
+		return nil
+	}
+	return parsed
 }
