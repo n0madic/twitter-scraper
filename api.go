@@ -3,7 +3,7 @@ package twitterscraper
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -48,9 +48,13 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
 	// private profiles return forbidden, but also data
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusForbidden {
-		content, _ := ioutil.ReadAll(resp.Body)
 		return fmt.Errorf("response status %s: %s", resp.Status, content)
 	}
 
@@ -58,13 +62,10 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		s.guestToken = ""
 	}
 
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if target == nil {
+		return nil
 	}
-	// fmt.Println(string(b))
-
-	return json.Unmarshal(b, target)
+	return json.Unmarshal(content, target)
 }
 
 // GetGuestToken from Twitter API
@@ -81,7 +82,7 @@ func (s *Scraper) GetGuestToken() error {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

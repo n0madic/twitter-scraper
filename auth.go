@@ -11,6 +11,7 @@ import (
 
 const (
 	loginURL     = "https://api.twitter.com/1.1/onboarding/task.json"
+	logoutURL    = "https://api.twitter.com/1.1/account/logout.json"
 	bearerToken2 = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
 )
 
@@ -230,11 +231,21 @@ func (s *Scraper) Login(credentials ...string) error {
 }
 
 // Logout is reset session
-func (s *Scraper) Logout() {
+func (s *Scraper) Logout() error {
+	req, err := http.NewRequest("POST", logoutURL, nil)
+	if err != nil {
+		return err
+	}
+	err = s.RequestAPI(req, nil)
+	if err != nil {
+		return err
+	}
+
 	s.isLogged = false
 	s.guestToken = ""
 	s.client.Jar, _ = cookiejar.New(nil)
 	s.setBearerToken(bearerToken)
+	return nil
 }
 
 func (s *Scraper) GetCookies() []*http.Cookie {

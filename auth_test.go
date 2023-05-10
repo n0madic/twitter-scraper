@@ -22,13 +22,15 @@ func TestAuth(t *testing.T) {
 		t.Fatalf("Expected IsLoggedIn() = true")
 	}
 	cookies := scraper.GetCookies()
-	scraper.Logout()
-	if scraper.IsLoggedIn() {
-		t.Error("Expected IsLoggedIn() = false")
-	}
 	scraper2 := twitterscraper.New()
 	scraper2.SetCookies(cookies)
 	if !scraper2.IsLoggedIn() {
 		t.Error("Expected restored IsLoggedIn() = true")
+	}
+	if err := scraper.Logout(); err != nil {
+		t.Errorf("Logout() error = %v", err)
+	}
+	if scraper.IsLoggedIn() {
+		t.Error("Expected IsLoggedIn() = false")
 	}
 }
