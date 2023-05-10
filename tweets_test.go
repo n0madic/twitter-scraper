@@ -107,7 +107,6 @@ func TestTweetMentions(t *testing.T) {
 	}}
 	scraper := twitterscraper.New()
 	tweet, err := scraper.GetTweet("1554522888904101890")
-	println(tweet.Mentions[0].Username)
 	if err != nil {
 		t.Error(err)
 	} else {
