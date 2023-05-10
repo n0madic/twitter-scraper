@@ -160,9 +160,11 @@ type timeline struct {
 func (timeline *timeline) parseTweet(id string) *Tweet {
 	if tweet, ok := timeline.GlobalObjects.Tweets[id]; ok {
 		username := timeline.GlobalObjects.Users[tweet.UserIDStr].ScreenName
+		name := timeline.GlobalObjects.Users[tweet.UserIDStr].Name
 		tw := &Tweet{
 			ID:           id,
 			Likes:        tweet.FavoriteCount,
+			Name:         name,
 			PermanentURL: fmt.Sprintf("https://twitter.com/%s/status/%s", username, id),
 			Replies:      tweet.ReplyCount,
 			Retweets:     tweet.RetweetCount,

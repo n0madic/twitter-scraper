@@ -34,6 +34,7 @@ type (
 		IsReply          bool
 		IsRetweet        bool
 		Likes            int
+		Name             string
 		Mentions         []Mention
 		PermanentURL     string
 		Photos           []Photo

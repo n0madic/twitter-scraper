@@ -75,6 +75,7 @@ func TestGetTweet(t *testing.T) {
 	sample := twitterscraper.Tweet{
 		HTML:         "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. <br><br>We have a place for that now—Fleets! <br><br>Rolling out to everyone starting today. <br><a href=\"https://t.co/auQAHXZMfH\"><img src=\"https://pbs.twimg.com/amplify_video_thumb/1328684333599756289/img/cP5KwbIXbGunNSBy.jpg\"/></a>",
 		ID:           "1328684389388185600",
+		Name:         "Twitter",
 		PermanentURL: "https://twitter.com/Twitter/status/1328684389388185600",
 		Photos:       nil,
 		Text:         "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. \n\nWe have a place for that now—Fleets! \n\nRolling out to everyone starting today. https://t.co/auQAHXZMfH",
@@ -121,6 +122,7 @@ func TestQuotedAndReply(t *testing.T) {
 		HTML:         "The Easiest Problem Everyone Gets Wrong <br><br>[new video] --&gt; <a href=\"https://youtu.be/ytfCdqWhmdg\">https://t.co/YdaeDYmPAU</a> <br><a href=\"https://t.co/iKu4Xs6o2V\"><img src=\"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg\"/></a>",
 		ID:           "1237110546383724547",
 		Likes:        485,
+		Name:         "Vsauce2",
 		PermanentURL: "https://twitter.com/VsauceTwo/status/1237110546383724547",
 		Photos: []twitterscraper.Photo{{
 			ID:  "1237110473486729218",
@@ -165,6 +167,7 @@ func TestRetweet(t *testing.T) {
 		HTML:         "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
 		ID:           "1359151057872580612",
 		Likes:        6683,
+		Name:         "Twitter Together",
 		PermanentURL: "https://twitter.com/TwitterTogether/status/1359151057872580612",
 		Replies:      456,
 		Retweets:     1495,
