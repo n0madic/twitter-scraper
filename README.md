@@ -177,6 +177,13 @@ It is also required to search.
 err := scraper.Login("username", "password")
 ```
 
+Use username to login, not email!
+But if you have email confirmation, use email address in addition:
+
+```golang
+err := scraper.Login("username", "password", "email")
+```
+
 Status of login can be checked with:
 
 ```golang

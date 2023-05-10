@@ -13,7 +13,7 @@ func authSearchScraper() error {
 	if searchScraper.IsLoggedIn() {
 		return nil
 	}
-	return searchScraper.Login(username, password)
+	return searchScraper.Login(username, password, email)
 }
 
 func TestFetchSearchCursor(t *testing.T) {

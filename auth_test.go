@@ -10,15 +10,16 @@ import (
 var (
 	username = os.Getenv("TWITTER_USERNAME")
 	password = os.Getenv("TWITTER_PASSWORD")
+	email    = os.Getenv("TWITTER_EMAIL")
 )
 
 func TestAuth(t *testing.T) {
 	scraper := twitterscraper.New()
-	if err := scraper.Login(username, password); err != nil {
+	if err := scraper.Login(username, password, email); err != nil {
 		t.Fatalf("Login() error = %v", err)
 	}
 	if !scraper.IsLoggedIn() {
-		t.Error("Expected IsLoggedIn() = true")
+		t.Fatalf("Expected IsLoggedIn() = true")
 	}
 	cookies := scraper.GetCookies()
 	scraper.Logout()

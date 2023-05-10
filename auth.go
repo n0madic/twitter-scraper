@@ -22,6 +22,9 @@ type (
 		} `json:"errors"`
 		FlowToken string `json:"flow_token"`
 		Status    string `json:"status"`
+		Subtasks  []struct {
+			SubtaskID string `json:"subtask_id"`
+		} `json:"subtasks"`
 	}
 
 	verifyCredentials struct {
@@ -69,7 +72,15 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 		return "", fmt.Errorf("auth error (%d): %v", info.Errors[0].Code, info.Errors[0].Message)
 	}
 
-	return info.FlowToken, nil
+	if info.Subtasks != nil && len(info.Subtasks) > 0 {
+		if info.Subtasks[0].SubtaskID == "LoginEnterAlternateIdentifierSubtask" {
+			err = fmt.Errorf("auth error: %v", "LoginEnterAlternateIdentifierSubtask")
+		} else if info.Subtasks[0].SubtaskID == "LoginAcid" {
+			err = fmt.Errorf("auth error: %v", "LoginAcid")
+		}
+	}
+
+	return info.FlowToken, err
 }
 
 // IsLoggedIn check if scraper logged in
@@ -92,7 +103,21 @@ func (s *Scraper) IsLoggedIn() bool {
 }
 
 // Login to Twitter
-func (s *Scraper) Login(username string, password string) error {
+// Use Login(username, password) for ordinary login
+// or Login(username, password, email) for login if you have email confirmation
+func (s *Scraper) Login(credentials ...string) error {
+	var username, password, email string
+	if len(credentials) == 2 {
+		username = credentials[0]
+		password = credentials[1]
+	} else if len(credentials) == 3 {
+		username = credentials[0]
+		password = credentials[1]
+		email = credentials[2]
+	} else {
+		return fmt.Errorf("invalid credentials")
+	}
+
 	s.setBearerToken(bearerToken2)
 
 	err := s.GetGuestToken()
@@ -178,9 +203,26 @@ func (s *Scraper) Login(username string, password string) error {
 			},
 		},
 	}
-	_, err = s.getFlowToken(data)
+	flowToken, err = s.getFlowToken(data)
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "LoginAcid") {
+			// flow acid
+			data = map[string]interface{}{
+				"flow_token": flowToken,
+				"subtask_inputs": []map[string]interface{}{
+					{
+						"subtask_id": "LoginAcid",
+						"enter_text": map[string]interface{}{"text": email, "link": "next_link"},
+					},
+				},
+			}
+			_, err = s.getFlowToken(data)
+			if err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
 	}
 
 	s.isLogged = true
