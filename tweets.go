@@ -18,13 +18,18 @@ func GetTweets(ctx context.Context, user string, maxTweetsNbr int) <-chan *Tweet
 
 // FetchTweets gets tweets for a given user, via the Twitter frontend API.
 func (s *Scraper) FetchTweets(user string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
-	if maxTweetsNbr > 200 {
-		maxTweetsNbr = 200
-	}
-
 	userID, err := s.GetUserIDByScreenName(user)
 	if err != nil {
 		return nil, "", err
+	}
+
+	return s.FetchTweetsByUserID(userID, maxTweetsNbr, cursor)
+}
+
+// FetchTweetsByUserID gets tweets for a given userID, via the Twitter frontend API.
+func (s *Scraper) FetchTweetsByUserID(userID string, maxTweetsNbr int, cursor string) ([]*Tweet, string, error) {
+	if maxTweetsNbr > 200 {
+		maxTweetsNbr = 200
 	}
 
 	req, err := s.newRequest("GET", "https://api.twitter.com/2/timeline/profile/"+userID+".json")
