@@ -27,6 +27,11 @@ type timeline struct {
 					ExpandedURL string `json:"expanded_url"`
 					URL         string `json:"url"`
 				} `json:"urls"`
+				UserMentions []struct {
+					IDStr      string `json:"id_str"`
+					Name       string `json:"name"`
+					ScreenName string `json:"screen_name"`
+				} `json:"user_mentions"`
 			} `json:"entities"`
 			ExtendedEntities struct {
 				Media []struct {
@@ -198,6 +203,14 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 
 		for _, hash := range tweet.Entities.Hashtags {
 			tw.Hashtags = append(tw.Hashtags, hash.Text)
+		}
+
+		for _, mention := range tweet.Entities.UserMentions {
+			tw.Mentions = append(tw.Mentions, Mention{
+				ID:       mention.IDStr,
+				Username: mention.ScreenName,
+				Name:     mention.Name,
+			})
 		}
 
 		for _, media := range tweet.ExtendedEntities.Media {
