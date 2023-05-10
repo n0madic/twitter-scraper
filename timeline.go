@@ -202,7 +202,12 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 
 		for _, media := range tweet.ExtendedEntities.Media {
 			if media.Type == "photo" {
-				tw.Photos = append(tw.Photos, media.MediaURLHttps)
+				photo := Photo{
+					ID:  media.IDStr,
+					URL: media.MediaURLHttps,
+				}
+
+				tw.Photos = append(tw.Photos, photo)
 			} else if media.Type == "video" {
 				video := Video{
 					ID:      media.IDStr,
@@ -217,7 +222,6 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 					}
 				}
 
-				tw.Photos = append(tw.Photos, video.Preview)
 				tw.Videos = append(tw.Videos, video)
 			}
 
@@ -259,7 +263,15 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 			}
 			return tco
 		})
-		for _, url := range tw.Photos {
+		for _, photo := range tw.Photos {
+			url := photo.URL
+			if stringInSlice(url, foundedMedia) {
+				continue
+			}
+			tw.HTML += fmt.Sprintf(`<br><img src="%s"/>`, url)
+		}
+		for _, video := range tw.Videos {
+			url := video.Preview
 			if stringInSlice(url, foundedMedia) {
 				continue
 			}
