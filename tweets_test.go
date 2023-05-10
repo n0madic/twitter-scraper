@@ -100,6 +100,23 @@ func TestGetTweet(t *testing.T) {
 	}
 }
 
+func TestTweetMentions(t *testing.T) {
+	sample := []twitterscraper.Mention{{
+		ID:       "7018222",
+		Username: "davidmcraney",
+		Name:     "David McRaney",
+	}}
+	scraper := twitterscraper.New()
+	tweet, err := scraper.GetTweet("1554522888904101890")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if diff := cmp.Diff(sample, tweet.Mentions, cmpOptions...); diff != "" {
+			t.Error("Resulting tweet does not match the sample", diff)
+		}
+	}
+}
+
 func TestQuotedAndReply(t *testing.T) {
 	sample := &twitterscraper.Tweet{
 		HTML:         "The Easiest Problem Everyone Gets Wrong <br><br>[new video] --&gt; <a href=\"https://youtu.be/ytfCdqWhmdg\">https://t.co/YdaeDYmPAU</a> <br><a href=\"https://t.co/iKu4Xs6o2V\"><img src=\"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg\"/></a>",
