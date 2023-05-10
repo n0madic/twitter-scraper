@@ -27,6 +27,7 @@ type (
 		IsReply          bool
 		IsRetweet        bool
 		Likes            int
+		Name             string
 		PermanentURL     string
 		Photos           []Photo
 		Place            *Place
