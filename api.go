@@ -53,8 +53,7 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		return err
 	}
 
-	// private profiles return forbidden, but also data
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusForbidden {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("response status %s: %s", resp.Status, content)
 	}
 
