@@ -75,11 +75,6 @@ func (s *Scraper) GetProfile(username string) (Profile, error) {
 	return parseProfile(jsn.Data.User.Legacy), nil
 }
 
-// Deprecated: GetProfile wrapper for default scraper
-func GetProfile(username string) (Profile, error) {
-	return defaultScraper.GetProfile(username)
-}
-
 // GetUserIDByScreenName from API
 func (s *Scraper) GetUserIDByScreenName(screenName string) (string, error) {
 	id, ok := cacheIDs.Load(screenName)

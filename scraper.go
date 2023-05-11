@@ -46,8 +46,6 @@ const (
 // default http client timeout
 const DefaultClientTimeout = 10 * time.Second
 
-var defaultScraper *Scraper
-
 // New creates a Scraper object
 func New() *Scraper {
 	jar, _ := cookiejar.New(nil)
@@ -76,31 +74,16 @@ func (s *Scraper) SetSearchMode(mode SearchMode) *Scraper {
 	return s
 }
 
-// Deprecated: SetSearchMode wrapper for default Scraper
-func SetSearchMode(mode SearchMode) *Scraper {
-	return defaultScraper.SetSearchMode(mode)
-}
-
 // WithDelay add delay between API requests (in seconds)
 func (s *Scraper) WithDelay(seconds int64) *Scraper {
 	s.delay = seconds
 	return s
 }
 
-// Deprecated: WithDelay wrapper for default Scraper
-func WithDelay(seconds int64) *Scraper {
-	return defaultScraper.WithDelay(seconds)
-}
-
 // WithReplies enable/disable load timeline with tweet replies
 func (s *Scraper) WithReplies(b bool) *Scraper {
 	s.includeReplies = b
 	return s
-}
-
-// Deprecated: WithReplies wrapper for default Scraper
-func WithReplies(b bool) *Scraper {
-	return defaultScraper.WithReplies(b)
 }
 
 // client timeout
@@ -148,13 +131,4 @@ func (s *Scraper) SetProxy(proxyAddr string) error {
 		return nil
 	}
 	return errors.New("only support http(s) or socks5 protocol")
-}
-
-// Deprecated: SetProxy wrapper for default Scraper
-func SetProxy(proxy string) error {
-	return defaultScraper.SetProxy(proxy)
-}
-
-func init() {
-	defaultScraper = New()
 }

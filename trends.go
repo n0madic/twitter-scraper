@@ -35,8 +35,3 @@ func (s *Scraper) GetTrends() ([]string, error) {
 
 	return trends, nil
 }
-
-// Deprecated: GetTrends wrapper for default Scraper
-func GetTrends() ([]string, error) {
-	return defaultScraper.GetTrends()
-}

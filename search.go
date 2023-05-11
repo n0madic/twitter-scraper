@@ -11,19 +11,9 @@ func (s *Scraper) SearchTweets(ctx context.Context, query string, maxTweetsNbr i
 	return getTweetTimeline(ctx, query, maxTweetsNbr, s.FetchSearchTweets)
 }
 
-// Deprecated: SearchTweets wrapper for default Scraper
-func SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *TweetResult {
-	return defaultScraper.SearchTweets(ctx, query, maxTweetsNbr)
-}
-
 // SearchProfiles returns channel with profiles for a given search query
 func (s *Scraper) SearchProfiles(ctx context.Context, query string, maxProfilesNbr int) <-chan *ProfileResult {
 	return getUserTimeline(ctx, query, maxProfilesNbr, s.FetchSearchProfiles)
-}
-
-// Deprecated: SearchProfiles wrapper for default Scraper
-func SearchProfiles(ctx context.Context, query string, maxProfilesNbr int) <-chan *ProfileResult {
-	return defaultScraper.SearchProfiles(ctx, query, maxProfilesNbr)
 }
 
 // getSearchTimeline gets results for a given search query, via the Twitter frontend API
