@@ -50,6 +50,7 @@ type (
 		UserID           string
 		Username         string
 		Videos           []Video
+		Views            int
 		SensitiveContent bool
 	}
 
