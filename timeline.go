@@ -2,6 +2,7 @@ package twitterscraper
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -60,6 +61,10 @@ type timeline struct {
 			QuotedStatusIDStr    string    `json:"quoted_status_id_str"`
 			Time                 time.Time `json:"time"`
 			UserIDStr            string    `json:"user_id_str"`
+			Views                struct {
+				State string `json:"state"`
+				Count string `json:"count"`
+			} `json:"ext_views"`
 		} `json:"tweets"`
 		Users map[string]struct {
 			CreatedAt   string `json:"created_at"`
@@ -194,6 +199,14 @@ func (timeline *timeline) parseTweet(id string) *Tweet {
 		if tweet.RetweetedStatusIDStr != "" {
 			tw.IsRetweet = true
 			tw.RetweetedStatus = timeline.parseTweet(tweet.RetweetedStatusIDStr)
+		}
+
+		if tweet.Views.Count != "" {
+			views, viewsErr := strconv.Atoi(tweet.Views.Count)
+			if viewsErr != nil {
+				views = 0
+			}
+			tw.Views = views
 		}
 
 		for _, pinned := range timeline.GlobalObjects.Users[tweet.UserIDStr].PinnedTweetIdsStr {
