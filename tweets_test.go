@@ -190,3 +190,30 @@ func TestRetweet(t *testing.T) {
 		}
 	}
 }
+
+func TestTweetViews(t *testing.T) {
+	sample := &twitterscraper.Tweet{
+		HTML:         "Replies and likes don’t tell the whole story. We’re making it easier to tell *just* how many people have seen your Tweets with the addition of view counts, shown right next to likes. Now on iOS and Android, web coming soon.",
+		ID:           "1606055187348688896",
+		Likes:        2839,
+		Name:         "Twitter Support",
+		PermanentURL: "https://twitter.com/TwitterSupport/status/1606055187348688896",
+		Replies:      3427,
+		Retweets:     783,
+		Text:         "Replies and likes don’t tell the whole story. We’re making it easier to tell *just* how many people have seen your Tweets with the addition of view counts, shown right next to likes. Now on iOS and Android, web coming soon.",
+		TimeParsed:   time.Date(2022, 12, 22, 22, 32, 50, 0, time.FixedZone("UTC", 0)),
+		Timestamp:    1612881838,
+		UserID:       "17874544",
+		Username:     "TwitterSupport",
+		Views:        3189278,
+	}
+	scraper := twitterscraper.New()
+	tweet, err := scraper.GetTweet("1606055187348688896")
+	if err != nil {
+		t.Error(err)
+	} else {
+		if tweet.Views < sample.Views {
+			t.Error("Views must be greater than or equal to the sample")
+		}
+	}
+}
