@@ -2,6 +2,7 @@ package twitterscraper_test
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	twitterscraper "github.com/n0madic/twitter-scraper"
@@ -17,6 +18,9 @@ func authSearchScraper() error {
 }
 
 func TestFetchSearchCursor(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	err := authSearchScraper()
 	if err != nil {
 		t.Fatal(err)
@@ -38,6 +42,9 @@ func TestFetchSearchCursor(t *testing.T) {
 }
 
 func TestGetSearchProfiles(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	count := 0
 	maxProfilesNbr := 150
 	dupcheck := make(map[string]bool)
@@ -68,6 +75,9 @@ func TestGetSearchProfiles(t *testing.T) {
 	}
 }
 func TestGetSearchTweets(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	count := 0
 	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)

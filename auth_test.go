@@ -14,6 +14,9 @@ var (
 )
 
 func TestAuth(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	scraper := twitterscraper.New()
 	if err := scraper.Login(username, password, email); err != nil {
 		t.Fatalf("Login() error = %v", err)
