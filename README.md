@@ -64,6 +64,8 @@ func main() {
 
 ### Search tweets by query standard operators
 
+Now the search only works for authenticated users!
+
 Tweets containing “twitter” and “scraper” and “data“, filtering out retweets:
 
 ```golang
@@ -77,6 +79,10 @@ import (
 
 func main() {
     scraper := twitterscraper.New()
+    err := scraper.Login(username, password)
+    if err !== nil {
+        panic(err)
+    }
     for tweet := range scraper.SearchTweets(context.Background(),
         "twitter scraper data -filter:retweets", 50) {
         if tweet.Error != nil {
@@ -139,6 +145,10 @@ import (
 
 func main() {
     scraper := twitterscraper.New().SetSearchMode(twitterscraper.SearchUsers)
+    err := scraper.Login(username, password)
+    if err !== nil {
+        panic(err)
+    }
     for profile := range scraper.SearchProfiles(context.Background(), "Twitter", 50) {
         if profile.Error != nil {
             panic(profile.Error)
