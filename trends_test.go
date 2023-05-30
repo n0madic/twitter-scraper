@@ -10,7 +10,7 @@ func TestGetTrends(t *testing.T) {
 	scraper := twitterscraper.New()
 	trends, err := scraper.GetTrends()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if len(trends) != 20 {
