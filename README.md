@@ -79,7 +79,7 @@ import (
 
 func main() {
     scraper := twitterscraper.New()
-    err := scraper.Login(username, password)
+    err := scraper.LoginOpenAccount()
     if err !== nil {
         panic(err)
     }
@@ -183,6 +183,8 @@ func main() {
 Some specified user tweets are protected that you must login and follow.
 It is also required to search.
 
+#### Login
+
 ```golang
 err := scraper.Login("username", "password")
 ```
@@ -230,6 +232,14 @@ json.NewDecoder(f).Decode(&cookies)
 scraper.SetCookies(cookies)
 // check login status
 scraper.IsLoggedIn()
+```
+
+#### Open account
+
+If you don't want to use your account, you can login as a Twitter app:
+
+```golang
+err := scraper.LoginOpenAccount()
 ```
 
 ### Use Proxy

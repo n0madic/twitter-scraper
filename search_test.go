@@ -10,18 +10,11 @@ import (
 
 var searchScraper = twitterscraper.New()
 
-func authSearchScraper() error {
-	if searchScraper.IsLoggedIn() {
-		return nil
-	}
-	return searchScraper.Login(username, password, email)
-}
-
 func TestFetchSearchCursor(t *testing.T) {
 	if os.Getenv("SKIP_AUTH_TEST") != "" {
 		t.Skip("Skipping test due to environment variable")
 	}
-	err := authSearchScraper()
+	err := searchScraper.LoginOpenAccount()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,13 +35,10 @@ func TestFetchSearchCursor(t *testing.T) {
 }
 
 func TestGetSearchProfiles(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
-		t.Skip("Skipping test due to environment variable")
-	}
 	count := 0
 	maxProfilesNbr := 150
 	dupcheck := make(map[string]bool)
-	err := authSearchScraper()
+	err := searchScraper.LoginOpenAccount()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,13 +65,10 @@ func TestGetSearchProfiles(t *testing.T) {
 	}
 }
 func TestGetSearchTweets(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
-		t.Skip("Skipping test due to environment variable")
-	}
 	count := 0
 	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)
-	err := authSearchScraper()
+	err := searchScraper.LoginOpenAccount()
 	if err != nil {
 		t.Fatal(err)
 	}

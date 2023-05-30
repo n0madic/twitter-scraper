@@ -37,3 +37,10 @@ func TestAuth(t *testing.T) {
 		t.Error("Expected IsLoggedIn() = false")
 	}
 }
+
+func TestLoginOpenAccount(t *testing.T) {
+	scraper := twitterscraper.New()
+	if err := scraper.LoginOpenAccount(); err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
+}

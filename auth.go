@@ -2,17 +2,27 @@ package twitterscraper
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
+	"strconv"
 	"strings"
+	"time"
 )
 
 const (
-	loginURL     = "https://api.twitter.com/1.1/onboarding/task.json"
-	logoutURL    = "https://api.twitter.com/1.1/account/logout.json"
-	bearerToken2 = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+	loginURL          = "https://api.twitter.com/1.1/onboarding/task.json"
+	logoutURL         = "https://api.twitter.com/1.1/account/logout.json"
+	oAuthURL          = "https://api.twitter.com/oauth2/token"
+	bearerToken2      = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+	appConsumerKey    = "3nVuSoBZnx6U4vzUxf5w"
+	appConsumerSecret = "Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys"
 )
 
 type (
@@ -24,7 +34,11 @@ type (
 		FlowToken string `json:"flow_token"`
 		Status    string `json:"status"`
 		Subtasks  []struct {
-			SubtaskID string `json:"subtask_id"`
+			SubtaskID   string `json:"subtask_id"`
+			OpenAccount struct {
+				OAuthToken       string `json:"oauth_token"`
+				OAuthTokenSecret string `json:"oauth_token_secret"`
+			} `json:"open_account"`
 		} `json:"subtasks"`
 	}
 
@@ -36,11 +50,39 @@ type (
 	}
 )
 
-func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
+func (s *Scraper) getAccessToken(consumerKey, consumerSecret string) (string, error) {
+	req, err := http.NewRequest("POST", oAuthURL, strings.NewReader("grant_type=client_credentials"))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.SetBasicAuth(consumerKey, consumerSecret)
+
+	res, err := s.client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(res.Body)
+		return "", fmt.Errorf("unexpected status code: %d, body: %s", res.StatusCode, body)
+	}
+
+	var a struct {
+		AccessToken string `json:"access_token"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&a); err != nil {
+		return "", err
+	}
+	return a.AccessToken, nil
+}
+
+func (s *Scraper) getFlow(data map[string]interface{}) (*flow, error) {
 	headers := http.Header{
 		"Authorization":             []string{"Bearer " + s.bearerToken},
 		"Content-Type":              []string{"application/json"},
-		"User-Agent":                []string{"Mozilla/5.0 (Linux; Android 11; Nokia G20) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.88 Mobile Safari/537.36"},
+		"User-Agent":                []string{"TwitterAndroid/99"},
 		"X-Guest-Token":             []string{s.guestToken},
 		"X-Twitter-Auth-Type":       []string{"OAuth2Client"},
 		"X-Twitter-Active-User":     []string{"yes"},
@@ -49,22 +91,31 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	req, err := http.NewRequest("POST", loginURL, bytes.NewReader(jsonData))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	req.Header = headers
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	var info flow
 	err = json.NewDecoder(resp.Body).Decode(&info)
+	if err != nil {
+		return nil, err
+	}
+
+	return &info, nil
+}
+
+func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
+	info, err := s.getFlow(data)
 	if err != nil {
 		return "", err
 	}
@@ -230,6 +281,58 @@ func (s *Scraper) Login(credentials ...string) error {
 	return nil
 }
 
+// LoginOpenAccount as Twitter app
+func (s *Scraper) LoginOpenAccount() error {
+	accessToken, err := s.getAccessToken(appConsumerKey, appConsumerSecret)
+	if err != nil {
+		return err
+	}
+	s.setBearerToken(accessToken)
+
+	err = s.GetGuestToken()
+	if err != nil {
+		return err
+	}
+
+	// flow start
+	data := map[string]interface{}{
+		"flow_name": "welcome",
+		"input_flow_data": map[string]interface{}{
+			"flow_context": map[string]interface{}{
+				"debug_overrides": map[string]interface{}{},
+				"start_location":  map[string]interface{}{"location": "splash_screen"},
+			},
+		},
+	}
+	flowToken, err := s.getFlowToken(data)
+	if err != nil {
+		return err
+	}
+
+	// flow next link
+	data = map[string]interface{}{
+		"flow_token": flowToken,
+		"subtask_inputs": []interface{}{
+			map[string]interface{}{
+				"subtask_id": "NextTaskOpenLink",
+			},
+		},
+	}
+	info, err := s.getFlow(data)
+	if err != nil {
+		return err
+	}
+
+	if info.Subtasks != nil && len(info.Subtasks) > 0 {
+		if info.Subtasks[0].SubtaskID == "OpenAccount" {
+			s.oAuthToken = info.Subtasks[0].OpenAccount.OAuthToken
+			s.oAuthSecret = info.Subtasks[0].OpenAccount.OAuthTokenSecret
+			s.isLogged = true
+		}
+	}
+	return nil
+}
+
 // Logout is reset session
 func (s *Scraper) Logout() error {
 	req, err := http.NewRequest("POST", logoutURL, nil)
@@ -243,6 +346,8 @@ func (s *Scraper) Logout() error {
 
 	s.isLogged = false
 	s.guestToken = ""
+	s.oAuthToken = ""
+	s.oAuthSecret = ""
 	s.client.Jar, _ = cookiejar.New(nil)
 	s.setBearerToken(bearerToken)
 	return nil
@@ -262,4 +367,45 @@ func (s *Scraper) GetCookies() []*http.Cookie {
 
 func (s *Scraper) SetCookies(cookies []*http.Cookie) {
 	s.client.Jar.SetCookies(twURL, cookies)
+}
+
+func (s *Scraper) sign(method string, ref *url.URL) string {
+	m := make(map[string]string)
+	m["oauth_consumer_key"] = appConsumerKey
+	m["oauth_nonce"] = "0"
+	m["oauth_signature_method"] = "HMAC-SHA1"
+	m["oauth_timestamp"] = strconv.FormatInt(time.Now().Unix(), 10)
+	m["oauth_token"] = s.oAuthToken
+
+	key := []byte(appConsumerSecret + "&" + s.oAuthSecret)
+	h := hmac.New(sha1.New, key)
+
+	query := ref.Query()
+	for k, v := range m {
+		query.Set(k, v)
+	}
+
+	req := []string{method, ref.Scheme + "://" + ref.Host + ref.Path, query.Encode()}
+	var reqBuf bytes.Buffer
+	for _, value := range req {
+		if reqBuf.Len() > 0 {
+			reqBuf.WriteByte('&')
+		}
+		reqBuf.WriteString(url.QueryEscape(value))
+	}
+	h.Write(reqBuf.Bytes())
+
+	m["oauth_signature"] = base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+	var b bytes.Buffer
+	for k, v := range m {
+		if b.Len() > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(k)
+		b.WriteByte('=')
+		b.WriteString(url.QueryEscape(v))
+	}
+
+	return "OAuth " + b.String()
 }

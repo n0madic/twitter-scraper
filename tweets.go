@@ -52,7 +52,7 @@ func (s *Scraper) FetchTweetsByUserID(userID string, maxTweetsNbr int, cursor st
 
 // GetTweet get a single tweet by ID.
 func (s *Scraper) GetTweet(id string) (*Tweet, error) {
-	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/timeline/conversation/"+id+".json")
+	req, err := s.newRequest("GET", "https://api.twitter.com/2/timeline/conversation/"+id+".json")
 	if err != nil {
 		return nil, err
 	}

@@ -33,7 +33,11 @@ func (s *Scraper) RequestAPI(req *http.Request, target interface{}) error {
 		req.Header.Set("X-Guest-Token", s.guestToken)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+s.bearerToken)
+	if s.oAuthToken != "" && s.oAuthSecret != "" {
+		req.Header.Set("Authorization", s.sign(req.Method, req.URL))
+	} else {
+		req.Header.Set("Authorization", "Bearer "+s.bearerToken)
+	}
 
 	for _, cookie := range s.client.Jar.Cookies(req.URL) {
 		if cookie.Name == "ct0" {

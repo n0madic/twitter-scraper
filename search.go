@@ -6,6 +6,8 @@ import (
 	"strconv"
 )
 
+const searchURL = "https://api.twitter.com/2/search/adaptive.json"
+
 // SearchTweets returns channel with tweets for a given search query
 func (s *Scraper) SearchTweets(ctx context.Context, query string, maxTweetsNbr int) <-chan *TweetResult {
 	return getTweetTimeline(ctx, query, maxTweetsNbr, s.FetchSearchTweets)
@@ -26,7 +28,7 @@ func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*t
 		maxNbr = 50
 	}
 
-	req, err := s.newRequest("GET", "https://twitter.com/i/api/2/search/adaptive.json")
+	req, err := s.newRequest("GET", searchURL)
 	if err != nil {
 		return nil, err
 	}
