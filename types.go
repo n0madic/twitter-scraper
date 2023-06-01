@@ -25,33 +25,36 @@ type (
 
 	// Tweet type.
 	Tweet struct {
-		Hashtags         []string
-		HTML             string
-		ID               string
-		InReplyToStatus  *Tweet
-		IsQuoted         bool
-		IsPin            bool
-		IsReply          bool
-		IsRetweet        bool
-		Likes            int
-		Name             string
-		Mentions         []Mention
-		PermanentURL     string
-		Photos           []Photo
-		Place            *Place
-		QuotedStatus     *Tweet
-		Replies          int
-		Retweets         int
-		RetweetedStatus  *Tweet
-		Text             string
-		TimeParsed       time.Time
-		Timestamp        int64
-		URLs             []string
-		UserID           string
-		Username         string
-		Videos           []Video
-		Views            int
-		SensitiveContent bool
+		Hashtags          []string
+		HTML              string
+		ID                string
+		InReplyToStatus   *Tweet
+		InReplyToStatusID string
+		IsQuoted          bool
+		IsPin             bool
+		IsReply           bool
+		IsRetweet         bool
+		Likes             int
+		Name              string
+		Mentions          []Mention
+		PermanentURL      string
+		Photos            []Photo
+		Place             *Place
+		QuotedStatus      *Tweet
+		QuotedStatusID    string
+		Replies           int
+		Retweets          int
+		RetweetedStatus   *Tweet
+		RetweetedStatusID string
+		Text              string
+		TimeParsed        time.Time
+		Timestamp         int64
+		URLs              []string
+		UserID            string
+		Username          string
+		Videos            []Video
+		Views             int
+		SensitiveContent  bool
 	}
 
 	// ProfileResult of scrapping.
@@ -64,6 +67,66 @@ type (
 	TweetResult struct {
 		Tweet
 		Error error
+	}
+
+	legacyTweet struct {
+		CreatedAt     string `json:"created_at"`
+		FavoriteCount int    `json:"favorite_count"`
+		FullText      string `json:"full_text"`
+		Entities      struct {
+			Hashtags []struct {
+				Text string `json:"text"`
+			} `json:"hashtags"`
+			Media []struct {
+				MediaURLHttps string `json:"media_url_https"`
+				Type          string `json:"type"`
+				URL           string `json:"url"`
+			} `json:"media"`
+			URLs []struct {
+				ExpandedURL string `json:"expanded_url"`
+				URL         string `json:"url"`
+			} `json:"urls"`
+			UserMentions []struct {
+				IDStr      string `json:"id_str"`
+				Name       string `json:"name"`
+				ScreenName string `json:"screen_name"`
+			} `json:"user_mentions"`
+		} `json:"entities"`
+		ExtendedEntities struct {
+			Media []struct {
+				IDStr                    string `json:"id_str"`
+				MediaURLHttps            string `json:"media_url_https"`
+				ExtSensitiveMediaWarning struct {
+					AdultContent    bool `json:"adult_content"`
+					GraphicViolence bool `json:"graphic_violence"`
+					Other           bool `json:"other"`
+				} `json:"ext_sensitive_media_warning"`
+				Type      string `json:"type"`
+				URL       string `json:"url"`
+				VideoInfo struct {
+					Variants []struct {
+						Bitrate int    `json:"bitrate"`
+						URL     string `json:"url"`
+					} `json:"variants"`
+				} `json:"video_info"`
+			} `json:"media"`
+		} `json:"extended_entities"`
+		IDStr                 string `json:"id_str"`
+		InReplyToStatusIDStr  string `json:"in_reply_to_status_id_str"`
+		Place                 Place  `json:"place"`
+		ReplyCount            int    `json:"reply_count"`
+		RetweetCount          int    `json:"retweet_count"`
+		RetweetedStatusIDStr  string `json:"retweeted_status_id_str"`
+		RetweetedStatusResult struct {
+			Result *result `json:"result"`
+		} `json:"retweeted_status_result"`
+		QuotedStatusIDStr string    `json:"quoted_status_id_str"`
+		Time              time.Time `json:"time"`
+		UserIDStr         string    `json:"user_id_str"`
+		Views             struct {
+			State string `json:"state"`
+			Count string `json:"count"`
+		} `json:"ext_views"`
 	}
 
 	legacyUser struct {

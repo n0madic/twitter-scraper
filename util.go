@@ -2,6 +2,7 @@ package twitterscraper
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -184,6 +185,14 @@ func parseProfile(user legacyUser) Profile {
 	}
 
 	return profile
+}
+
+func mapToJSONString(data map[string]interface{}) string {
+	jsonBytes, err := json.Marshal(data)
+	if err != nil {
+		return ""
+	}
+	return string(jsonBytes)
 }
 
 func stringInSlice(a string, list []string) bool {

@@ -19,7 +19,7 @@ func (s *Scraper) SearchProfiles(ctx context.Context, query string, maxProfilesN
 }
 
 // getSearchTimeline gets results for a given search query, via the Twitter frontend API
-func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*timeline, error) {
+func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*timelineV1, error) {
 	if !s.isLogged {
 		return nil, errors.New("scraper is not logged in for search")
 	}
@@ -57,7 +57,7 @@ func (s *Scraper) getSearchTimeline(query string, maxNbr int, cursor string) (*t
 
 	req.URL.RawQuery = q.Encode()
 
-	var timeline timeline
+	var timeline timelineV1
 	err = s.RequestAPI(req, &timeline)
 	if err != nil {
 		return nil, err

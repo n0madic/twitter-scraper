@@ -16,7 +16,7 @@ func (s *Scraper) GetTrends() ([]string, error) {
 	q.Add("entity_tokens", "false")
 	req.URL.RawQuery = q.Encode()
 
-	var jsn timeline
+	var jsn timelineV1
 	curBearerToken := s.bearerToken
 	if curBearerToken != bearerToken2 {
 		s.setBearerToken(bearerToken2)
