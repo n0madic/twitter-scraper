@@ -3,6 +3,7 @@ package twitterscraper
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 )
@@ -49,10 +50,19 @@ type user struct {
 // GetProfile return parsed user profile.
 func (s *Scraper) GetProfile(username string) (Profile, error) {
 	var jsn user
-	req, err := http.NewRequest("GET", "https://api.twitter.com/graphql/4S2ihIKfF3xhp-ENxvUAfQ/UserByScreenName?variables=%7B%22screen_name%22%3A%22"+username+"%22%2C%22withHighlightedLabel%22%3Atrue%7D", nil)
+	req, err := http.NewRequest("GET", "https://api.twitter.com/graphql/4S2ihIKfF3xhp-ENxvUAfQ/UserByScreenName", nil)
 	if err != nil {
 		return Profile{}, err
 	}
+
+	variables := map[string]interface{}{
+		"screen_name":          username,
+		"withHighlightedLabel": true,
+	}
+
+	query := url.Values{}
+	query.Set("variables", mapToJSONString(variables))
+	req.URL.RawQuery = query.Encode()
 
 	err = s.RequestAPI(req, &jsn)
 	if err != nil {
