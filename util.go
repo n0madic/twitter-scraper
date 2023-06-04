@@ -138,9 +138,6 @@ func getTweetTimeline(ctx context.Context, query string, maxTweetsNbr int, fetch
 				}
 
 				if tweetsNbr < maxTweetsNbr {
-					if tweet.IsPin && nextCursor != "" {
-						continue
-					}
 					nextCursor = next
 					channel <- &TweetResult{Tweet: *tweet}
 				} else {
