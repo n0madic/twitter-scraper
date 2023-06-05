@@ -73,16 +73,17 @@ func TestGetTweets(t *testing.T) {
 
 func TestGetTweet(t *testing.T) {
 	sample := twitterscraper.Tweet{
-		HTML:         "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. <br><br>We have a place for that now—Fleets! <br><br>Rolling out to everyone starting today. <br><a href=\"https://t.co/auQAHXZMfH\"><img src=\"https://pbs.twimg.com/amplify_video_thumb/1328684333599756289/img/cP5KwbIXbGunNSBy.jpg\"/></a>",
-		ID:           "1328684389388185600",
-		Name:         "Twitter",
-		PermanentURL: "https://twitter.com/Twitter/status/1328684389388185600",
-		Photos:       nil,
-		Text:         "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. \n\nWe have a place for that now—Fleets! \n\nRolling out to everyone starting today. https://t.co/auQAHXZMfH",
-		TimeParsed:   time.Date(2020, 11, 17, 13, 0, 18, 0, time.FixedZone("UTC", 0)),
-		Timestamp:    1605618018,
-		UserID:       "783214",
-		Username:     "Twitter",
+		ConversationID: "1328684389388185600",
+		HTML:           "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. <br><br>We have a place for that now—Fleets! <br><br>Rolling out to everyone starting today. <br><a href=\"https://t.co/auQAHXZMfH\"><img src=\"https://pbs.twimg.com/amplify_video_thumb/1328684333599756289/img/cP5KwbIXbGunNSBy.jpg\"/></a>",
+		ID:             "1328684389388185600",
+		Name:           "Twitter",
+		PermanentURL:   "https://twitter.com/Twitter/status/1328684389388185600",
+		Photos:         nil,
+		Text:           "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. \n\nWe have a place for that now—Fleets! \n\nRolling out to everyone starting today. https://t.co/auQAHXZMfH",
+		TimeParsed:     time.Date(2020, 11, 17, 13, 0, 18, 0, time.FixedZone("UTC", 0)),
+		Timestamp:      1605618018,
+		UserID:         "783214",
+		Username:       "Twitter",
 		Videos: []twitterscraper.Video{{
 			ID:      "1328684333599756289",
 			Preview: "https://pbs.twimg.com/amplify_video_thumb/1328684333599756289/img/cP5KwbIXbGunNSBy.jpg",
@@ -119,11 +120,12 @@ func TestTweetMentions(t *testing.T) {
 
 func TestQuotedAndReply(t *testing.T) {
 	sample := &twitterscraper.Tweet{
-		HTML:         "The Easiest Problem Everyone Gets Wrong <br><br>[new video] --&gt; <a href=\"https://youtu.be/ytfCdqWhmdg\">https://t.co/YdaeDYmPAU</a> <br><a href=\"https://t.co/iKu4Xs6o2V\"><img src=\"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg\"/></a>",
-		ID:           "1237110546383724547",
-		Likes:        485,
-		Name:         "Vsauce2",
-		PermanentURL: "https://twitter.com/VsauceTwo/status/1237110546383724547",
+		ConversationID: "1237110546383724547",
+		HTML:           "The Easiest Problem Everyone Gets Wrong <br><br>[new video] --&gt; <a href=\"https://youtu.be/ytfCdqWhmdg\">https://t.co/YdaeDYmPAU</a> <br><a href=\"https://t.co/iKu4Xs6o2V\"><img src=\"https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg\"/></a>",
+		ID:             "1237110546383724547",
+		Likes:          485,
+		Name:           "Vsauce2",
+		PermanentURL:   "https://twitter.com/VsauceTwo/status/1237110546383724547",
 		Photos: []twitterscraper.Photo{{
 			ID:  "1237110473486729218",
 			URL: "https://pbs.twimg.com/media/ESsZa9AXgAIAYnF.jpg",
@@ -164,18 +166,19 @@ func TestQuotedAndReply(t *testing.T) {
 }
 func TestRetweet(t *testing.T) {
 	sample := &twitterscraper.Tweet{
-		HTML:         "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
-		ID:           "1359151057872580612",
-		Likes:        6683,
-		Name:         "Twitter Together",
-		PermanentURL: "https://twitter.com/TwitterTogether/status/1359151057872580612",
-		Replies:      456,
-		Retweets:     1495,
-		Text:         "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
-		TimeParsed:   time.Date(2021, 02, 9, 14, 43, 58, 0, time.FixedZone("UTC", 0)),
-		Timestamp:    1612881838,
-		UserID:       "773578328498372608",
-		Username:     "TwitterTogether",
+		ConversationID: "1359151057872580612",
+		HTML:           "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
+		ID:             "1359151057872580612",
+		Likes:          6683,
+		Name:           "Twitter Together",
+		PermanentURL:   "https://twitter.com/TwitterTogether/status/1359151057872580612",
+		Replies:        456,
+		Retweets:       1495,
+		Text:           "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
+		TimeParsed:     time.Date(2021, 02, 9, 14, 43, 58, 0, time.FixedZone("UTC", 0)),
+		Timestamp:      1612881838,
+		UserID:         "773578328498372608",
+		Username:       "TwitterTogether",
 	}
 	scraper := twitterscraper.New()
 	tweet, err := scraper.GetTweet("1362849141248974853")
@@ -214,6 +217,21 @@ func TestTweetViews(t *testing.T) {
 	} else {
 		if tweet.Views < sample.Views {
 			t.Error("Views must be greater than or equal to the sample")
+		}
+	}
+}
+
+func TestTweetThread(t *testing.T) {
+	scraper := twitterscraper.New()
+	tweet, err := scraper.GetTweet("1665602315745673217")
+	if err != nil {
+		t.Fatal(err)
+	} else {
+		if !tweet.IsSelfThread {
+			t.Error("IsSelfThread must be True")
+		}
+		if len(tweet.Thread) != 7 {
+			t.Error("Thread length must be 7")
 		}
 	}
 }

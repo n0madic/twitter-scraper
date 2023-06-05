@@ -54,14 +54,16 @@ type entry struct {
 		Items      []struct {
 			Item struct {
 				ItemContent struct {
-					TweetResults struct {
+					TweetDisplayType string `json:"tweetDisplayType"`
+					TweetResults     struct {
 						Result result `json:"result"`
 					} `json:"tweet_results"`
 				} `json:"itemContent"`
 			} `json:"item"`
 		} `json:"items"`
 		ItemContent struct {
-			TweetResults struct {
+			TweetDisplayType string `json:"tweetDisplayType"`
+			TweetResults     struct {
 				Result result `json:"result"`
 			} `json:"tweet_results"`
 		} `json:"itemContent"`
@@ -124,12 +126,18 @@ func (conversation *threadedConversation) parse() []*Tweet {
 		for _, entry := range instruction.Entries {
 			if entry.Content.ItemContent.TweetResults.Result.Typename == "Tweet" {
 				if tweet := entry.Content.ItemContent.TweetResults.Result.parse(); tweet != nil {
+					if entry.Content.ItemContent.TweetDisplayType == "SelfThread" {
+						tweet.IsSelfThread = true
+					}
 					tweets = append(tweets, tweet)
 				}
 			}
 			for _, item := range entry.Content.Items {
 				if item.Item.ItemContent.TweetResults.Result.Typename == "Tweet" {
 					if tweet := item.Item.ItemContent.TweetResults.Result.parse(); tweet != nil {
+						if item.Item.ItemContent.TweetDisplayType == "SelfThread" {
+							tweet.IsSelfThread = true
+						}
 						tweets = append(tweets, tweet)
 					}
 				}
@@ -145,6 +153,16 @@ func (conversation *threadedConversation) parse() []*Tweet {
 				}
 			}
 		}
+		if tweet.IsSelfThread && tweet.ConversationID == tweet.ID {
+			for _, childTweet := range tweets {
+				if childTweet.IsSelfThread && childTweet.ID != tweet.ID {
+					tweet.Thread = append(tweet.Thread, childTweet)
+				}
+			}
+			if len(tweet.Thread) == 0 {
+				tweet.IsSelfThread = false
+			}
+		}
 	}
 	return tweets
 }
@@ -154,15 +172,16 @@ func parseLegacyTweet(user *legacyUser, tweet *legacyTweet) *Tweet {
 	name := user.Name
 	tweetID := tweet.IDStr
 	tw := &Tweet{
-		ID:           tweetID,
-		Likes:        tweet.FavoriteCount,
-		Name:         name,
-		PermanentURL: fmt.Sprintf("https://twitter.com/%s/status/%s", username, tweetID),
-		Replies:      tweet.ReplyCount,
-		Retweets:     tweet.RetweetCount,
-		Text:         tweet.FullText,
-		UserID:       tweet.UserIDStr,
-		Username:     username,
+		ConversationID: tweet.ConversationIDStr,
+		ID:             tweetID,
+		Likes:          tweet.FavoriteCount,
+		Name:           name,
+		PermanentURL:   fmt.Sprintf("https://twitter.com/%s/status/%s", username, tweetID),
+		Replies:        tweet.ReplyCount,
+		Retweets:       tweet.RetweetCount,
+		Text:           tweet.FullText,
+		UserID:         tweet.UserIDStr,
+		Username:       username,
 	}
 
 	tm, err := time.Parse(time.RubyDate, tweet.CreatedAt)

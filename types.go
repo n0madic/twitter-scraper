@@ -25,6 +25,7 @@ type (
 
 	// Tweet type.
 	Tweet struct {
+		ConversationID    string
 		Hashtags          []string
 		HTML              string
 		ID                string
@@ -34,6 +35,7 @@ type (
 		IsPin             bool
 		IsReply           bool
 		IsRetweet         bool
+		IsSelfThread      bool
 		Likes             int
 		Name              string
 		Mentions          []Mention
@@ -47,6 +49,7 @@ type (
 		RetweetedStatus   *Tweet
 		RetweetedStatusID string
 		Text              string
+		Thread            []*Tweet
 		TimeParsed        time.Time
 		Timestamp         int64
 		URLs              []string
@@ -70,10 +73,11 @@ type (
 	}
 
 	legacyTweet struct {
-		CreatedAt     string `json:"created_at"`
-		FavoriteCount int    `json:"favorite_count"`
-		FullText      string `json:"full_text"`
-		Entities      struct {
+		ConversationIDStr string `json:"conversation_id_str"`
+		CreatedAt         string `json:"created_at"`
+		FavoriteCount     int    `json:"favorite_count"`
+		FullText          string `json:"full_text"`
+		Entities          struct {
 			Hashtags []struct {
 				Text string `json:"text"`
 			} `json:"hashtags"`
