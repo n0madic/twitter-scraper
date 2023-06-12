@@ -196,6 +196,12 @@ But if you have email confirmation, use email address in addition:
 err := scraper.Login("username", "password", "email")
 ```
 
+If you have two-factor authentication, use code:
+
+```golang
+err := scraper.Login("username", "password", "code")
+```
+
 Status of login can be checked with:
 
 ```golang

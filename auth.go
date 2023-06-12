@@ -129,6 +129,8 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 			err = fmt.Errorf("auth error: %v", "LoginEnterAlternateIdentifierSubtask")
 		} else if info.Subtasks[0].SubtaskID == "LoginAcid" {
 			err = fmt.Errorf("auth error: %v", "LoginAcid")
+		} else if info.Subtasks[0].SubtaskID == "LoginTwoFactorAuthChallenge" {
+			err = fmt.Errorf("auth error: %v", "LoginTwoFactorAuthChallenge")
 		}
 	}
 
@@ -157,17 +159,16 @@ func (s *Scraper) IsLoggedIn() bool {
 // Login to Twitter
 // Use Login(username, password) for ordinary login
 // or Login(username, password, email) for login if you have email confirmation
+// or Login(username, password, code_for_2FA) for login if you have two-factor authentication
 func (s *Scraper) Login(credentials ...string) error {
-	var username, password, email string
-	if len(credentials) == 2 {
-		username = credentials[0]
-		password = credentials[1]
-	} else if len(credentials) == 3 {
-		username = credentials[0]
-		password = credentials[1]
-		email = credentials[2]
-	} else {
+	var username, password, confirmation string
+	if len(credentials) < 2 || len(credentials) > 3 {
 		return fmt.Errorf("invalid credentials")
+	}
+
+	username, password = credentials[0], credentials[1]
+	if len(credentials) == 3 {
+		confirmation = credentials[2]
 	}
 
 	s.setBearerToken(bearerToken2)
@@ -257,14 +258,24 @@ func (s *Scraper) Login(credentials ...string) error {
 	}
 	flowToken, err = s.getFlowToken(data)
 	if err != nil {
-		if strings.Contains(err.Error(), "LoginAcid") {
-			// flow acid
+		var confirmationSubtask string
+		for _, subtask := range []string{"LoginAcid", "LoginTwoFactorAuthChallenge"} {
+			if strings.Contains(err.Error(), subtask) {
+				confirmationSubtask = subtask
+				break
+			}
+		}
+		if confirmationSubtask != "" {
+			if confirmation == "" {
+				return fmt.Errorf("confirmation data required for %v", confirmationSubtask)
+			}
+			// flow confirmation
 			data = map[string]interface{}{
 				"flow_token": flowToken,
 				"subtask_inputs": []map[string]interface{}{
 					{
-						"subtask_id": "LoginAcid",
-						"enter_text": map[string]interface{}{"text": email, "link": "next_link"},
+						"subtask_id": confirmationSubtask,
+						"enter_text": map[string]interface{}{"text": confirmation, "link": "next_link"},
 					},
 				},
 			}
