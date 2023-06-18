@@ -23,9 +23,17 @@ type (
 		URL     string
 	}
 
+	// GIF type.
+	GIF struct {
+		ID      string
+		Preview string
+		URL     string
+	}
+
 	// Tweet type.
 	Tweet struct {
 		ConversationID    string
+		GIFs              []GIF
 		Hashtags          []string
 		HTML              string
 		ID                string

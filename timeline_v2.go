@@ -261,6 +261,26 @@ func parseLegacyTweet(user *legacyUser, tweet *legacyTweet) *Tweet {
 			}
 
 			tw.Videos = append(tw.Videos, video)
+		} else if media.Type == "animated_gif" {
+			gif := GIF{
+				ID:      media.IDStr,
+				Preview: media.MediaURLHttps,
+			}
+
+			// Twitter's API doesn't provide bitrate for GIFs, (it's always set to zero).
+			// Therefore we check for `>=` instead of `>` in the loop below.
+			// Also, GIFs have just a single variant today. Just in case that changes in the future,
+			// and there will be multiple variants, we'll pick the one with the highest bitrate,
+			// if other one will have a non-zero bitrate.
+			maxBitrate := 0
+			for _, variant := range media.VideoInfo.Variants {
+				if variant.Bitrate >= maxBitrate {
+					gif.URL = variant.URL
+					maxBitrate = variant.Bitrate
+				}
+			}
+
+			tw.GIFs = append(tw.GIFs, gif)
 		}
 
 		if !tw.SensitiveContent {
@@ -310,6 +330,13 @@ func parseLegacyTweet(user *legacyUser, tweet *legacyTweet) *Tweet {
 	}
 	for _, video := range tw.Videos {
 		url := video.Preview
+		if stringInSlice(url, foundedMedia) {
+			continue
+		}
+		tw.HTML += fmt.Sprintf(`<br><img src="%s"/>`, url)
+	}
+	for _, gif := range tw.GIFs {
+		url := gif.Preview
 		if stringInSlice(url, foundedMedia) {
 			continue
 		}
