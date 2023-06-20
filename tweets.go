@@ -85,14 +85,13 @@ func (s *Scraper) FetchTweetsByUserID(userID string, maxTweetsNbr int, cursor st
 
 // GetTweet get a single tweet by ID.
 func (s *Scraper) GetTweet(id string) (*Tweet, error) {
-	req, err := s.newRequest("GET", "https://twitter.com/i/api/graphql/wETHelmSuBQR5r-dgUlPxg/TweetDetail")
+	req, err := s.newRequest("GET", "https://twitter.com/i/api/graphql/VWFGPVAGkZMGRKGe3GFFnA/TweetDetail")
 	if err != nil {
 		return nil, err
 	}
 
 	variables := map[string]interface{}{
 		"focalTweetId":                           id,
-		"referrer":                               "profile",
 		"with_rux_injections":                    false,
 		"includePromotedContent":                 true,
 		"withCommunity":                          true,
@@ -103,14 +102,13 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 	}
 
 	features := map[string]interface{}{
-		"rweb_lists_timeline_redesign_enabled":                              true,
-		"responsive_web_graphql_exclude_directive_enabled":                  true,
-		"verified_phone_label_enabled":                                      false,
-		"creator_subscriptions_tweet_preview_api_enabled":                   true,
-		"responsive_web_graphql_timeline_navigation_enabled":                true,
-		"responsive_web_graphql_skip_user_profile_image_extensions_enabled": false,
-		"tweetypie_unmention_optimization_enabled":                          true,
-		"vibe_api_enabled":                                                        true,
+		"rweb_lists_timeline_redesign_enabled":                                    true,
+		"responsive_web_graphql_exclude_directive_enabled":                        true,
+		"verified_phone_label_enabled":                                            false,
+		"creator_subscriptions_tweet_preview_api_enabled":                         true,
+		"responsive_web_graphql_timeline_navigation_enabled":                      true,
+		"responsive_web_graphql_skip_user_profile_image_extensions_enabled":       false,
+		"tweetypie_unmention_optimization_enabled":                                true,
 		"responsive_web_edit_tweet_api_enabled":                                   true,
 		"graphql_is_translatable_rweb_tweet_is_translatable_enabled":              true,
 		"view_counts_everywhere_api_enabled":                                      true,
@@ -119,10 +117,8 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 		"freedom_of_speech_not_reach_fetch_enabled":                               true,
 		"standardized_nudges_misinfo":                                             true,
 		"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": false,
-		"interactive_text_enabled":                                                true,
-		"responsive_web_text_conversations_enabled":                               false,
 		"longform_notetweets_rich_text_read_enabled":                              true,
-		"longform_notetweets_inline_media_enabled":                                false,
+		"longform_notetweets_inline_media_enabled":                                true,
 		"responsive_web_enhance_cards_enabled":                                    false,
 	}
 
@@ -132,7 +128,21 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 	req.URL.RawQuery = query.Encode()
 
 	var conversation threadedConversation
+
+	// Surprisingly, if bearerToken2 is not set, then animated GIFs are not
+	// present in the response for tweets with a GIF + a photo like this one:
+	// https://twitter.com/Twitter/status/1580661436132757506
+	curBearerToken := s.bearerToken
+	if curBearerToken != bearerToken2 {
+		s.setBearerToken(bearerToken2)
+	}
+
 	err = s.RequestAPI(req, &conversation)
+
+	if curBearerToken != bearerToken2 {
+		s.setBearerToken(curBearerToken)
+	}
+
 	if err != nil {
 		return nil, err
 	}

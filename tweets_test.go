@@ -71,8 +71,18 @@ func TestGetTweets(t *testing.T) {
 	}
 }
 
-func TestGetTweet(t *testing.T) {
-	sample := twitterscraper.Tweet{
+func assertGetTweet(t *testing.T, expectedTweet *twitterscraper.Tweet) {
+	scraper := twitterscraper.New()
+	actualTweet, err := scraper.GetTweet(expectedTweet.ID)
+	if err != nil {
+		t.Error(err)
+	} else if diff := cmp.Diff(expectedTweet, actualTweet, cmpOptions...); diff != "" {
+		t.Error("Resulting tweet does not match the sample", diff)
+	}
+}
+
+func TestGetTweetWithVideo(t *testing.T) {
+	expectedTweet := twitterscraper.Tweet{
 		ConversationID: "1328684389388185600",
 		HTML:           "That thing you didn’t Tweet but wanted to but didn’t but got so close but then were like nah. <br><br>We have a place for that now—Fleets! <br><br>Rolling out to everyone starting today. <br><a href=\"https://t.co/auQAHXZMfH\"><img src=\"https://pbs.twimg.com/amplify_video_thumb/1328684333599756289/img/cP5KwbIXbGunNSBy.jpg\"/></a>",
 		ID:             "1328684389388185600",
@@ -90,15 +100,75 @@ func TestGetTweet(t *testing.T) {
 			URL:     "https://video.twimg.com/amplify_video/1328684333599756289/vid/960x720/PcL8yv8KhgQ48Qpt.mp4?tag=13",
 		}},
 	}
-	scraper := twitterscraper.New()
-	tweet, err := scraper.GetTweet("1328684389388185600")
-	if err != nil {
-		t.Error(err)
-	} else {
-		if diff := cmp.Diff(sample, *tweet, cmpOptions...); diff != "" {
-			t.Error("Resulting tweet does not match the sample", diff)
-		}
+	assertGetTweet(t, &expectedTweet)
+}
+
+func TestGetTweetWithMultiplePhotos(t *testing.T) {
+	expectedTweet := twitterscraper.Tweet{
+		ConversationID: "1390026628957417473",
+		HTML:           `no bird too tall, no crop too short<br><br>introducing bigger and better images on iOS and Android, now available to everyone <br><a href="https://t.co/2buHfhfRAx"><img src="https://pbs.twimg.com/media/E0pd2L2XEAQ_gnn.jpg"/></a><br><img src="https://pbs.twimg.com/media/E0pd2hPXoAY9-TZ.jpg"/>`,
+		ID:             "1390026628957417473",
+		Name:           "Twitter",
+		PermanentURL:   "https://twitter.com/Twitter/status/1390026628957417473",
+		Photos: []twitterscraper.Photo{
+			{ID: "1390026620472332292", URL: "https://pbs.twimg.com/media/E0pd2L2XEAQ_gnn.jpg"},
+			{ID: "1390026626214371334", URL: "https://pbs.twimg.com/media/E0pd2hPXoAY9-TZ.jpg"},
+		},
+		Text:       "no bird too tall, no crop too short\n\nintroducing bigger and better images on iOS and Android, now available to everyone https://t.co/2buHfhfRAx",
+		TimeParsed: time.Date(2021, 5, 5, 19, 32, 28, 0, time.FixedZone("UTC", 0)),
+		Timestamp:  1620243148,
+		UserID:     "783214",
+		Username:   "Twitter",
 	}
+	assertGetTweet(t, &expectedTweet)
+}
+
+func TestGetTweetWithGIF(t *testing.T) {
+	expectedTweet := twitterscraper.Tweet{
+		ConversationID: "1288540609310056450",
+		GIFs: []twitterscraper.GIF{
+			{
+				ID:      "1288540582768517123",
+				Preview: "https://pbs.twimg.com/tweet_video_thumb/EeHQ1UKXoAMVxWB.jpg",
+				URL:     "https://video.twimg.com/tweet_video/EeHQ1UKXoAMVxWB.mp4",
+			},
+		},
+		Hashtags:     []string{"CountdownToMars"},
+		HTML:         `Like for liftoff! <a href="https://twitter.com/hashtag/CountdownToMars">#CountdownToMars</a> <br><a href="https://t.co/yLe331pHfY"><img src="https://pbs.twimg.com/tweet_video_thumb/EeHQ1UKXoAMVxWB.jpg"/></a>`,
+		ID:           "1288540609310056450",
+		Name:         "Twitter",
+		PermanentURL: "https://twitter.com/Twitter/status/1288540609310056450",
+		Text:         "Like for liftoff! #CountdownToMars https://t.co/yLe331pHfY",
+		TimeParsed:   time.Date(2020, 7, 29, 18, 23, 15, 0, time.FixedZone("UTC", 0)),
+		Timestamp:    1596046995,
+		UserID:       "783214",
+		Username:     "Twitter",
+	}
+	assertGetTweet(t, &expectedTweet)
+}
+
+func TestGetTweetWithPhotoAndGIF(t *testing.T) {
+	expectedTweet := twitterscraper.Tweet{
+		ConversationID: "1580661436132757506",
+		GIFs: []twitterscraper.GIF{
+			{
+				ID:      "1580661428335382531",
+				Preview: "https://pbs.twimg.com/tweet_video_thumb/Fe-jMcIXkAMXK_W.jpg",
+				URL:     "https://video.twimg.com/tweet_video/Fe-jMcIXkAMXK_W.mp4",
+			},
+		},
+		HTML:         `a hit Tweet <br><a href="https://t.co/2C7cah4KzW"><img src="https://pbs.twimg.com/media/Fe-jMcGWQAAFWoG.jpg"/></a><br><img src="https://pbs.twimg.com/tweet_video_thumb/Fe-jMcIXkAMXK_W.jpg"/>`,
+		ID:           "1580661436132757506",
+		Name:         "Twitter",
+		PermanentURL: "https://twitter.com/Twitter/status/1580661436132757506",
+		Photos:       []twitterscraper.Photo{{ID: "1580661428326907904", URL: "https://pbs.twimg.com/media/Fe-jMcGWQAAFWoG.jpg"}},
+		Text:         "a hit Tweet https://t.co/2C7cah4KzW",
+		TimeParsed:   time.Date(2022, 10, 13, 20, 47, 8, 0, time.FixedZone("UTC", 0)),
+		Timestamp:    1665694028,
+		UserID:       "783214",
+		Username:     "Twitter",
+	}
+	assertGetTweet(t, &expectedTweet)
 }
 
 func TestTweetMentions(t *testing.T) {
