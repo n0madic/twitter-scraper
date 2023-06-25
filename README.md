@@ -80,7 +80,7 @@ import (
 func main() {
     scraper := twitterscraper.New()
     err := scraper.LoginOpenAccount()
-    if err !== nil {
+    if err != nil {
         panic(err)
     }
     for tweet := range scraper.SearchTweets(context.Background(),
