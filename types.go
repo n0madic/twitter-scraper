@@ -132,10 +132,13 @@ type (
 		RetweetedStatusResult struct {
 			Result *result `json:"result"`
 		} `json:"retweeted_status_result"`
-		QuotedStatusIDStr string    `json:"quoted_status_id_str"`
-		Time              time.Time `json:"time"`
-		UserIDStr         string    `json:"user_id_str"`
-		Views             struct {
+		QuotedStatusIDStr string `json:"quoted_status_id_str"`
+		SelfThread        struct {
+			IDStr string `json:"id_str"`
+		} `json:"self_thread"`
+		Time      time.Time `json:"time"`
+		UserIDStr string    `json:"user_id_str"`
+		Views     struct {
 			State string `json:"state"`
 			Count string `json:"count"`
 		} `json:"ext_views"`

@@ -88,15 +88,16 @@ func (timeline *timelineV1) parseTweet(id string) *Tweet {
 		username := timeline.GlobalObjects.Users[tweet.UserIDStr].ScreenName
 		name := timeline.GlobalObjects.Users[tweet.UserIDStr].Name
 		tw := &Tweet{
-			ID:           id,
-			Likes:        tweet.FavoriteCount,
-			Name:         name,
-			PermanentURL: fmt.Sprintf("https://twitter.com/%s/status/%s", username, id),
-			Replies:      tweet.ReplyCount,
-			Retweets:     tweet.RetweetCount,
-			Text:         tweet.FullText,
-			UserID:       tweet.UserIDStr,
-			Username:     username,
+			ID:             id,
+			ConversationID: tweet.ConversationIDStr,
+			Likes:          tweet.FavoriteCount,
+			Name:           name,
+			PermanentURL:   fmt.Sprintf("https://twitter.com/%s/status/%s", username, id),
+			Replies:        tweet.ReplyCount,
+			Retweets:       tweet.RetweetCount,
+			Text:           tweet.FullText,
+			UserID:         tweet.UserIDStr,
+			Username:       username,
 		}
 
 		tm, err := time.Parse(time.RubyDate, tweet.CreatedAt)
@@ -123,6 +124,10 @@ func (timeline *timelineV1) parseTweet(id string) *Tweet {
 			tw.IsRetweet = true
 			tw.RetweetedStatus = timeline.parseTweet(tweet.RetweetedStatusIDStr)
 			tw.RetweetedStatusID = tweet.RetweetedStatusIDStr
+		}
+
+		if tweet.SelfThread.IDStr == id {
+			tw.IsSelfThread = true
 		}
 
 		if tweet.Views.Count != "" {

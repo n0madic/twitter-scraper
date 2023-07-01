@@ -289,6 +289,7 @@ func (s *Scraper) Login(credentials ...string) error {
 	}
 
 	s.isLogged = true
+	s.isOpenAccount = false
 	return nil
 }
 
@@ -339,6 +340,7 @@ func (s *Scraper) LoginOpenAccount() error {
 			s.oAuthToken = info.Subtasks[0].OpenAccount.OAuthToken
 			s.oAuthSecret = info.Subtasks[0].OpenAccount.OAuthTokenSecret
 			s.isLogged = true
+			s.isOpenAccount = true
 		}
 	}
 	return nil
@@ -356,6 +358,7 @@ func (s *Scraper) Logout() error {
 	}
 
 	s.isLogged = false
+	s.isOpenAccount = false
 	s.guestToken = ""
 	s.oAuthToken = ""
 	s.oAuthSecret = ""

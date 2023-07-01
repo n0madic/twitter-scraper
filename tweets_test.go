@@ -2,6 +2,7 @@ package twitterscraper_test
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -21,6 +22,10 @@ func TestGetTweets(t *testing.T) {
 	maxTweetsNbr := 300
 	dupcheck := make(map[string]bool)
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	for tweet := range scraper.GetTweets(context.Background(), "Twitter", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
@@ -73,6 +78,10 @@ func TestGetTweets(t *testing.T) {
 
 func assertGetTweet(t *testing.T, expectedTweet *twitterscraper.Tweet) {
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	actualTweet, err := scraper.GetTweet(expectedTweet.ID)
 	if err != nil {
 		t.Error(err)
@@ -124,6 +133,9 @@ func TestGetTweetWithMultiplePhotos(t *testing.T) {
 }
 
 func TestGetTweetWithGIF(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	expectedTweet := twitterscraper.Tweet{
 		ConversationID: "1288540609310056450",
 		GIFs: []twitterscraper.GIF{
@@ -148,6 +160,9 @@ func TestGetTweetWithGIF(t *testing.T) {
 }
 
 func TestGetTweetWithPhotoAndGIF(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	expectedTweet := twitterscraper.Tweet{
 		ConversationID: "1580661436132757506",
 		GIFs: []twitterscraper.GIF{
@@ -178,6 +193,10 @@ func TestTweetMentions(t *testing.T) {
 		Name:     "David McRaney",
 	}}
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	tweet, err := scraper.GetTweet("1554522888904101890")
 	if err != nil {
 		t.Error(err)
@@ -210,6 +229,10 @@ func TestQuotedAndReply(t *testing.T) {
 		Username:   "VsauceTwo",
 	}
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	tweet, err := scraper.GetTweet("1237110897597976576")
 	if err != nil {
 		t.Error(err)
@@ -239,6 +262,7 @@ func TestRetweet(t *testing.T) {
 		ConversationID: "1359151057872580612",
 		HTML:           "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
 		ID:             "1359151057872580612",
+		IsSelfThread:   true,
 		Likes:          6683,
 		Name:           "Twitter Together",
 		PermanentURL:   "https://twitter.com/TwitterTogether/status/1359151057872580612",
@@ -251,6 +275,10 @@ func TestRetweet(t *testing.T) {
 		Username:       "TwitterTogether",
 	}
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	tweet, err := scraper.GetTweet("1362849141248974853")
 	if err != nil {
 		t.Error(err)
@@ -281,6 +309,10 @@ func TestTweetViews(t *testing.T) {
 		Views:        3189278,
 	}
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	tweet, err := scraper.GetTweet("1606055187348688896")
 	if err != nil {
 		t.Error(err)
@@ -292,7 +324,14 @@ func TestTweetViews(t *testing.T) {
 }
 
 func TestTweetThread(t *testing.T) {
+	if os.Getenv("SKIP_AUTH_TEST") != "" {
+		t.Skip("Skipping test due to environment variable")
+	}
 	scraper := twitterscraper.New()
+	err := scraper.Login(username, password)
+	if err != nil {
+		t.Fatalf("Login() error = %v", err)
+	}
 	tweet, err := scraper.GetTweet("1665602315745673217")
 	if err != nil {
 		t.Fatal(err)

@@ -31,6 +31,10 @@ func TestGetProfile(t *testing.T) {
 	}
 
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	profile, err := scraper.GetProfile("nomadic_ua")
 	if err != nil {
 		t.Error(err)
@@ -83,6 +87,10 @@ func TestGetProfilePrivate(t *testing.T) {
 	}
 
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	// some random private profile (found via google)
 	profile, err := scraper.GetProfile("tomdumont")
 	if err != nil {
@@ -114,7 +122,11 @@ func TestGetProfilePrivate(t *testing.T) {
 
 func TestGetProfileErrorSuspended(t *testing.T) {
 	scraper := twitterscraper.New()
-	_, err := scraper.GetProfile("123")
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
+	_, err = scraper.GetProfile("123")
 	if err == nil {
 		t.Error("Expected Error, got success")
 	} else {
@@ -128,7 +140,11 @@ func TestGetProfileErrorNotFound(t *testing.T) {
 	neUser := "sample3123131"
 	expectedError := fmt.Sprintf("User '%s' not found", neUser)
 	scraper := twitterscraper.New()
-	_, err := scraper.GetProfile(neUser)
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
+	_, err = scraper.GetProfile(neUser)
 	if err == nil {
 		t.Error("Expected Error, got success")
 	} else {
@@ -140,6 +156,10 @@ func TestGetProfileErrorNotFound(t *testing.T) {
 
 func TestGetUserIDByScreenName(t *testing.T) {
 	scraper := twitterscraper.New()
+	err := scraper.LoginOpenAccount()
+	if err != nil {
+		t.Fatalf("LoginOpenAccount() error = %v", err)
+	}
 	userID, err := scraper.GetUserIDByScreenName("Twitter")
 	if err != nil {
 		t.Errorf("getUserByScreenName() error = %v", err)

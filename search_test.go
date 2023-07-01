@@ -2,7 +2,6 @@ package twitterscraper_test
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	twitterscraper "github.com/n0madic/twitter-scraper"
@@ -11,9 +10,6 @@ import (
 var searchScraper = twitterscraper.New()
 
 func TestFetchSearchCursor(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
-		t.Skip("Skipping test due to environment variable")
-	}
 	err := searchScraper.LoginOpenAccount()
 	if err != nil {
 		t.Fatal(err)

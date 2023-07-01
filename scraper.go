@@ -23,6 +23,7 @@ type Scraper struct {
 	guestCreatedAt time.Time
 	includeReplies bool
 	isLogged       bool
+	isOpenAccount  bool
 	oAuthToken     string
 	oAuthSecret    string
 	proxy          string
