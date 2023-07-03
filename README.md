@@ -155,7 +155,7 @@ import (
 
 func main() {
     scraper := twitterscraper.New()
-    err := scraper.LoginOpenAccount()
+    err := scraper.Login(username, password)
     if err != nil {
         panic(err)
     }

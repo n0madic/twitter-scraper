@@ -1,10 +1,7 @@
 package twitterscraper
 
 import (
-	"fmt"
 	"strconv"
-	"strings"
-	"time"
 )
 
 type result struct {
@@ -66,6 +63,13 @@ type entry struct {
 			TweetResults     struct {
 				Result result `json:"result"`
 			} `json:"tweet_results"`
+			UserDisplayType string `json:"userDisplayType"`
+			UserResults     struct {
+				Result struct {
+					RestID string     `json:"rest_id"`
+					Legacy legacyUser `json:"legacy"`
+				} `json:"result"`
+			} `json:"user_results"`
 		} `json:"itemContent"`
 	} `json:"content"`
 }
@@ -165,183 +169,4 @@ func (conversation *threadedConversation) parse() []*Tweet {
 		}
 	}
 	return tweets
-}
-
-func parseLegacyTweet(user *legacyUser, tweet *legacyTweet) *Tweet {
-	username := user.ScreenName
-	name := user.Name
-	tweetID := tweet.IDStr
-	tw := &Tweet{
-		ConversationID: tweet.ConversationIDStr,
-		ID:             tweetID,
-		Likes:          tweet.FavoriteCount,
-		Name:           name,
-		PermanentURL:   fmt.Sprintf("https://twitter.com/%s/status/%s", username, tweetID),
-		Replies:        tweet.ReplyCount,
-		Retweets:       tweet.RetweetCount,
-		Text:           tweet.FullText,
-		UserID:         tweet.UserIDStr,
-		Username:       username,
-	}
-
-	tm, err := time.Parse(time.RubyDate, tweet.CreatedAt)
-	if err == nil {
-		tw.TimeParsed = tm
-		tw.Timestamp = tm.Unix()
-	}
-
-	if tweet.Place.ID != "" {
-		tw.Place = &tweet.Place
-	}
-
-	if tweet.QuotedStatusIDStr != "" {
-		tw.IsQuoted = true
-		tw.QuotedStatusID = tweet.QuotedStatusIDStr
-	}
-	if tweet.InReplyToStatusIDStr != "" {
-		tw.IsReply = true
-		tw.InReplyToStatusID = tweet.InReplyToStatusIDStr
-	}
-	if tweet.RetweetedStatusIDStr != "" || tweet.RetweetedStatusResult.Result != nil {
-		tw.IsRetweet = true
-		tw.RetweetedStatusID = tweet.RetweetedStatusIDStr
-		if tweet.RetweetedStatusResult.Result != nil {
-			tw.RetweetedStatus = parseLegacyTweet(&tweet.RetweetedStatusResult.Result.Core.UserResults.Result.Legacy, &tweet.RetweetedStatusResult.Result.Legacy)
-			tw.RetweetedStatusID = tw.RetweetedStatus.ID
-		}
-	}
-
-	if tweet.Views.Count != "" {
-		views, viewsErr := strconv.Atoi(tweet.Views.Count)
-		if viewsErr != nil {
-			views = 0
-		}
-		tw.Views = views
-	}
-
-	for _, pinned := range user.PinnedTweetIdsStr {
-		if tweet.IDStr == pinned {
-			tw.IsPin = true
-			break
-		}
-	}
-
-	for _, hash := range tweet.Entities.Hashtags {
-		tw.Hashtags = append(tw.Hashtags, hash.Text)
-	}
-
-	for _, mention := range tweet.Entities.UserMentions {
-		tw.Mentions = append(tw.Mentions, Mention{
-			ID:       mention.IDStr,
-			Username: mention.ScreenName,
-			Name:     mention.Name,
-		})
-	}
-
-	for _, media := range tweet.ExtendedEntities.Media {
-		if media.Type == "photo" {
-			photo := Photo{
-				ID:  media.IDStr,
-				URL: media.MediaURLHttps,
-			}
-
-			tw.Photos = append(tw.Photos, photo)
-		} else if media.Type == "video" {
-			video := Video{
-				ID:      media.IDStr,
-				Preview: media.MediaURLHttps,
-			}
-
-			maxBitrate := 0
-			for _, variant := range media.VideoInfo.Variants {
-				if variant.Bitrate > maxBitrate {
-					video.URL = strings.TrimSuffix(variant.URL, "?tag=10")
-					maxBitrate = variant.Bitrate
-				}
-			}
-
-			tw.Videos = append(tw.Videos, video)
-		} else if media.Type == "animated_gif" {
-			gif := GIF{
-				ID:      media.IDStr,
-				Preview: media.MediaURLHttps,
-			}
-
-			// Twitter's API doesn't provide bitrate for GIFs, (it's always set to zero).
-			// Therefore we check for `>=` instead of `>` in the loop below.
-			// Also, GIFs have just a single variant today. Just in case that changes in the future,
-			// and there will be multiple variants, we'll pick the one with the highest bitrate,
-			// if other one will have a non-zero bitrate.
-			maxBitrate := 0
-			for _, variant := range media.VideoInfo.Variants {
-				if variant.Bitrate >= maxBitrate {
-					gif.URL = variant.URL
-					maxBitrate = variant.Bitrate
-				}
-			}
-
-			tw.GIFs = append(tw.GIFs, gif)
-		}
-
-		if !tw.SensitiveContent {
-			sensitive := media.ExtSensitiveMediaWarning
-			tw.SensitiveContent = sensitive.AdultContent || sensitive.GraphicViolence || sensitive.Other
-		}
-	}
-
-	for _, url := range tweet.Entities.URLs {
-		tw.URLs = append(tw.URLs, url.ExpandedURL)
-	}
-
-	tw.HTML = tweet.FullText
-	tw.HTML = reHashtag.ReplaceAllStringFunc(tw.HTML, func(hashtag string) string {
-		return fmt.Sprintf(`<a href="https://twitter.com/hashtag/%s">%s</a>`,
-			strings.TrimPrefix(hashtag, "#"),
-			hashtag,
-		)
-	})
-	tw.HTML = reUsername.ReplaceAllStringFunc(tw.HTML, func(username string) string {
-		return fmt.Sprintf(`<a href="https://twitter.com/%s">%s</a>`,
-			strings.TrimPrefix(username, "@"),
-			username,
-		)
-	})
-	var foundedMedia []string
-	tw.HTML = reTwitterURL.ReplaceAllStringFunc(tw.HTML, func(tco string) string {
-		for _, entity := range tweet.Entities.URLs {
-			if tco == entity.URL {
-				return fmt.Sprintf(`<a href="%s">%s</a>`, entity.ExpandedURL, tco)
-			}
-		}
-		for _, entity := range tweet.ExtendedEntities.Media {
-			if tco == entity.URL {
-				foundedMedia = append(foundedMedia, entity.MediaURLHttps)
-				return fmt.Sprintf(`<br><a href="%s"><img src="%s"/></a>`, tco, entity.MediaURLHttps)
-			}
-		}
-		return tco
-	})
-	for _, photo := range tw.Photos {
-		url := photo.URL
-		if stringInSlice(url, foundedMedia) {
-			continue
-		}
-		tw.HTML += fmt.Sprintf(`<br><img src="%s"/>`, url)
-	}
-	for _, video := range tw.Videos {
-		url := video.Preview
-		if stringInSlice(url, foundedMedia) {
-			continue
-		}
-		tw.HTML += fmt.Sprintf(`<br><img src="%s"/>`, url)
-	}
-	for _, gif := range tw.GIFs {
-		url := gif.Preview
-		if stringInSlice(url, foundedMedia) {
-			continue
-		}
-		tw.HTML += fmt.Sprintf(`<br><img src="%s"/>`, url)
-	}
-	tw.HTML = strings.Replace(tw.HTML, "\n", "<br>", -1)
-	return tw
 }
