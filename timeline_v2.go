@@ -35,6 +35,9 @@ func (result *result) parse() *Tweet {
 		result.Legacy.FullText = result.NoteTweet.NoteTweetResults.Result.Text
 	}
 	tw := parseLegacyTweet(&result.Core.UserResults.Result.Legacy, &result.Legacy)
+	if tw == nil {
+		return nil
+	}
 	if tw.Views == 0 && result.Views.Count != "" {
 		tw.Views, _ = strconv.Atoi(result.Views.Count)
 	}
