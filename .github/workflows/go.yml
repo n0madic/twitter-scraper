@@ -22,9 +22,4 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Test
-      env:
-        SKIP_AUTH_TEST: true
-        TWITTER_USERNAME: ${{ secrets.TWITTER_USERNAME }}
-        TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
-        TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
       run: go test -v -run '^(TestGetGuestToken|TestLoginOpenAccount|TestGetProfile|TestGetProfilePrivate|TestGetProfileErrorSuspended|TestGetProfileErrorNotFound|TestGetUserIDByScreenName|TestGetTweets|TestGetTrends)$'
