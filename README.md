@@ -18,7 +18,7 @@ go get -u github.com/n0madic/twitter-scraper
 
 ### Authentication
 
-Authentication is required for all methods now!
+Now all methods require authentication!
 
 #### Login
 
@@ -111,7 +111,7 @@ func main() {
 }
 ```
 
-It appears you can ask for up to 50 tweets (limit ~3200 tweets).
+It appears you can ask for up to 50 tweets.
 
 ### Get single tweet
 
@@ -126,7 +126,7 @@ import (
 
 func main() {
     scraper := twitterscraper.New()
-    err := scraper.LoginOpenAccount()
+    err := scraper.Login(username, password)
     if err !== nil {
         panic(err)
     }
