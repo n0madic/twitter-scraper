@@ -12,18 +12,12 @@ func TestFetchSearchCursor(t *testing.T) {
 	if os.Getenv("SKIP_AUTH_TEST") != "" {
 		t.Skip("Skipping test due to environment variable")
 	}
-	searchScraper := twitterscraper.New()
-	err := searchScraper.Login(username, password)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer searchScraper.Logout()
 
 	maxTweetsNbr := 150
 	tweetsNbr := 0
 	nextCursor := ""
 	for tweetsNbr < maxTweetsNbr {
-		tweets, cursor, err := searchScraper.FetchSearchTweets("twitter", maxTweetsNbr, nextCursor)
+		tweets, cursor, err := testScraper.FetchSearchTweets("twitter", maxTweetsNbr, nextCursor)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -42,15 +36,8 @@ func TestGetSearchProfiles(t *testing.T) {
 	count := 0
 	maxProfilesNbr := 150
 	dupcheck := make(map[string]bool)
-	searchScraper := twitterscraper.New()
-	err := searchScraper.Login(username, password)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer searchScraper.Logout()
-
-	searchScraper.SetSearchMode(twitterscraper.SearchUsers)
-	for profile := range searchScraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
+	testScraper.SetSearchMode(twitterscraper.SearchUsers)
+	for profile := range testScraper.SearchProfiles(context.Background(), "Twitter", maxProfilesNbr) {
 		if profile.Error != nil {
 			t.Error(profile.Error)
 		} else {
@@ -78,15 +65,8 @@ func TestGetSearchTweets(t *testing.T) {
 	count := 0
 	maxTweetsNbr := 150
 	dupcheck := make(map[string]bool)
-	searchScraper := twitterscraper.New()
-	err := searchScraper.Login(username, password)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer searchScraper.Logout()
-
-	searchScraper.SetSearchMode(twitterscraper.SearchLatest)
-	for tweet := range searchScraper.SearchTweets(context.Background(), "twitter", maxTweetsNbr) {
+	testScraper.SetSearchMode(twitterscraper.SearchLatest)
+	for tweet := range testScraper.SearchTweets(context.Background(), "twitter", maxTweetsNbr) {
 		if tweet.Error != nil {
 			t.Error(tweet.Error)
 		} else {

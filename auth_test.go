@@ -1,6 +1,7 @@
 package twitterscraper_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -8,10 +9,20 @@ import (
 )
 
 var (
-	username = os.Getenv("TWITTER_USERNAME")
-	password = os.Getenv("TWITTER_PASSWORD")
-	email    = os.Getenv("TWITTER_EMAIL")
+	username    = os.Getenv("TWITTER_USERNAME")
+	password    = os.Getenv("TWITTER_PASSWORD")
+	email       = os.Getenv("TWITTER_EMAIL")
+	testScraper = twitterscraper.New()
 )
+
+func init() {
+	if username != "" && password != "" {
+		err := testScraper.Login(username, password, email)
+		if err != nil {
+			panic(fmt.Sprintf("Login() error = %v", err))
+		}
+	}
+}
 
 func TestAuth(t *testing.T) {
 	if os.Getenv("SKIP_AUTH_TEST") != "" {

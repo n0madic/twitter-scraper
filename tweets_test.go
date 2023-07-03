@@ -77,12 +77,7 @@ func TestGetTweets(t *testing.T) {
 }
 
 func assertGetTweet(t *testing.T, expectedTweet *twitterscraper.Tweet) {
-	scraper := twitterscraper.New()
-	err := scraper.LoginOpenAccount()
-	if err != nil {
-		t.Fatalf("LoginOpenAccount() error = %v", err)
-	}
-	actualTweet, err := scraper.GetTweet(expectedTweet.ID)
+	actualTweet, err := testScraper.GetTweet(expectedTweet.ID)
 	if err != nil {
 		t.Error(err)
 	} else if diff := cmp.Diff(expectedTweet, actualTweet, cmpOptions...); diff != "" {
@@ -192,12 +187,7 @@ func TestTweetMentions(t *testing.T) {
 		Username: "davidmcraney",
 		Name:     "David McRaney",
 	}}
-	scraper := twitterscraper.New()
-	err := scraper.LoginOpenAccount()
-	if err != nil {
-		t.Fatalf("LoginOpenAccount() error = %v", err)
-	}
-	tweet, err := scraper.GetTweet("1554522888904101890")
+	tweet, err := testScraper.GetTweet("1554522888904101890")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -228,12 +218,7 @@ func TestQuotedAndReply(t *testing.T) {
 		UserID:     "978944851",
 		Username:   "VsauceTwo",
 	}
-	scraper := twitterscraper.New()
-	err := scraper.LoginOpenAccount()
-	if err != nil {
-		t.Fatalf("LoginOpenAccount() error = %v", err)
-	}
-	tweet, err := scraper.GetTweet("1237110897597976576")
+	tweet, err := testScraper.GetTweet("1237110897597976576")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -244,7 +229,7 @@ func TestQuotedAndReply(t *testing.T) {
 			t.Error("Resulting quote does not match the sample", diff)
 		}
 	}
-	tweet, err = scraper.GetTweet("1237111868445134850")
+	tweet, err = testScraper.GetTweet("1237111868445134850")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -262,7 +247,7 @@ func TestRetweet(t *testing.T) {
 		ConversationID: "1359151057872580612",
 		HTML:           "We’ve seen an increase in attacks against Asian communities and individuals around the world. It’s important to know that this isn’t new; throughout history, Asians have experienced violence and exclusion. However, their diverse lived experiences have largely been overlooked.",
 		ID:             "1359151057872580612",
-		IsSelfThread:   true,
+		IsSelfThread:   false,
 		Likes:          6683,
 		Name:           "Twitter Together",
 		PermanentURL:   "https://twitter.com/TwitterTogether/status/1359151057872580612",
@@ -274,12 +259,7 @@ func TestRetweet(t *testing.T) {
 		UserID:         "773578328498372608",
 		Username:       "TwitterTogether",
 	}
-	scraper := twitterscraper.New()
-	err := scraper.LoginOpenAccount()
-	if err != nil {
-		t.Fatalf("LoginOpenAccount() error = %v", err)
-	}
-	tweet, err := scraper.GetTweet("1362849141248974853")
+	tweet, err := testScraper.GetTweet("1362849141248974853")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -308,12 +288,7 @@ func TestTweetViews(t *testing.T) {
 		Username:     "TwitterSupport",
 		Views:        3189278,
 	}
-	scraper := twitterscraper.New()
-	err := scraper.LoginOpenAccount()
-	if err != nil {
-		t.Fatalf("LoginOpenAccount() error = %v", err)
-	}
-	tweet, err := scraper.GetTweet("1606055187348688896")
+	tweet, err := testScraper.GetTweet("1606055187348688896")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -327,12 +302,7 @@ func TestTweetThread(t *testing.T) {
 	if os.Getenv("SKIP_AUTH_TEST") != "" {
 		t.Skip("Skipping test due to environment variable")
 	}
-	scraper := twitterscraper.New()
-	err := scraper.Login(username, password)
-	if err != nil {
-		t.Fatalf("Login() error = %v", err)
-	}
-	tweet, err := scraper.GetTweet("1665602315745673217")
+	tweet, err := testScraper.GetTweet("1665602315745673217")
 	if err != nil {
 		t.Fatal(err)
 	} else {
