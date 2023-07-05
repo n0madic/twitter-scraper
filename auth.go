@@ -383,6 +383,10 @@ func (s *Scraper) SetCookies(cookies []*http.Cookie) {
 	s.client.Jar.SetCookies(twURL, cookies)
 }
 
+func (s *Scraper) ClearCookies() {
+	s.client.Jar, _ = cookiejar.New(nil)
+}
+
 func (s *Scraper) sign(method string, ref *url.URL) string {
 	m := make(map[string]string)
 	m["oauth_consumer_key"] = appConsumerKey
