@@ -131,6 +131,8 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 			err = fmt.Errorf("auth error: %v", "LoginAcid")
 		} else if info.Subtasks[0].SubtaskID == "LoginTwoFactorAuthChallenge" {
 			err = fmt.Errorf("auth error: %v", "LoginTwoFactorAuthChallenge")
+		} else if info.Subtasks[0].SubtaskID == "DenyLoginSubtask" {
+			err = fmt.Errorf("auth error: %v", "DenyLoginSubtask")
 		}
 	}
 
