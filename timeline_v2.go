@@ -115,6 +115,18 @@ func (timeline *timelineV2) parseTweets() ([]*Tweet, string) {
 	return tweets, cursor
 }
 
+type tweetResult struct {
+	Data struct {
+		TweetResult struct {
+			Result result `json:"result"`
+		} `json:"tweetResult"`
+	} `json:"data"`
+}
+
+func (result *tweetResult) parse() *Tweet {
+	return result.Data.TweetResult.Result.parse()
+}
+
 type threadedConversation struct {
 	Data struct {
 		ThreadedConversationWithInjectionsV2 struct {

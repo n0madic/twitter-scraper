@@ -137,49 +137,51 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 			}
 		}
 	} else {
-		req, err := s.newRequest("GET", "https://twitter.com/i/api/graphql/VWFGPVAGkZMGRKGe3GFFnA/TweetDetail")
+		req, err := s.newRequest("GET", "https://twitter.com/i/api/graphql/2ICDjqPd81tulZcYrtpTuQ/TweetResultByRestId")
 		if err != nil {
 			return nil, err
 		}
 
 		variables := map[string]interface{}{
-			"focalTweetId":                           id,
-			"with_rux_injections":                    false,
-			"includePromotedContent":                 true,
-			"withCommunity":                          true,
-			"withQuickPromoteEligibilityTweetFields": true,
-			"withBirdwatchNotes":                     true,
-			"withVoice":                              true,
-			"withV2Timeline":                         true,
+			"tweetId":                id,
+			"withCommunity":          false,
+			"includePromotedContent": false,
+			"withVoice":              false,
 		}
 
 		features := map[string]interface{}{
-			"rweb_lists_timeline_redesign_enabled":                                    true,
-			"responsive_web_graphql_exclude_directive_enabled":                        true,
-			"verified_phone_label_enabled":                                            false,
 			"creator_subscriptions_tweet_preview_api_enabled":                         true,
-			"responsive_web_graphql_timeline_navigation_enabled":                      true,
-			"responsive_web_graphql_skip_user_profile_image_extensions_enabled":       false,
 			"tweetypie_unmention_optimization_enabled":                                true,
 			"responsive_web_edit_tweet_api_enabled":                                   true,
 			"graphql_is_translatable_rweb_tweet_is_translatable_enabled":              true,
 			"view_counts_everywhere_api_enabled":                                      true,
 			"longform_notetweets_consumption_enabled":                                 true,
+			"responsive_web_twitter_article_tweet_consumption_enabled":                false,
 			"tweet_awards_web_tipping_enabled":                                        false,
 			"freedom_of_speech_not_reach_fetch_enabled":                               true,
 			"standardized_nudges_misinfo":                                             true,
-			"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": false,
+			"tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": true,
 			"longform_notetweets_rich_text_read_enabled":                              true,
 			"longform_notetweets_inline_media_enabled":                                true,
+			"responsive_web_graphql_exclude_directive_enabled":                        true,
+			"verified_phone_label_enabled":                                            false,
+			"responsive_web_media_download_video_enabled":                             false,
+			"responsive_web_graphql_skip_user_profile_image_extensions_enabled":       false,
+			"responsive_web_graphql_timeline_navigation_enabled":                      true,
 			"responsive_web_enhance_cards_enabled":                                    false,
+		}
+
+		fieldToggles := map[string]interface{}{
+			"withArticleRichContentState": false,
 		}
 
 		query := url.Values{}
 		query.Set("variables", mapToJSONString(variables))
 		query.Set("features", mapToJSONString(features))
+		query.Set("fieldToggles", mapToJSONString(fieldToggles))
 		req.URL.RawQuery = query.Encode()
 
-		var conversation threadedConversation
+		var result tweetResult
 
 		// Surprisingly, if bearerToken2 is not set, then animated GIFs are not
 		// present in the response for tweets with a GIF + a photo like this one:
@@ -189,7 +191,7 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 			s.setBearerToken(bearerToken2)
 		}
 
-		err = s.RequestAPI(req, &conversation)
+		err = s.RequestAPI(req, &result)
 
 		if curBearerToken != bearerToken2 {
 			s.setBearerToken(curBearerToken)
@@ -199,12 +201,8 @@ func (s *Scraper) GetTweet(id string) (*Tweet, error) {
 			return nil, err
 		}
 
-		tweets := conversation.parse()
-		for _, tweet := range tweets {
-			if tweet.ID == id {
-				return tweet, nil
-			}
-		}
+		tweet := result.parse()
+		return tweet, nil
 	}
 	return nil, fmt.Errorf("tweet with ID %s not found", id)
 }
