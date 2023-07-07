@@ -2,13 +2,13 @@ package twitterscraper_test
 
 import (
 	"testing"
-
-	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
 func TestGetTrends(t *testing.T) {
-	scraper := twitterscraper.New()
-	trends, err := scraper.GetTrends()
+	if skipAuthTest {
+		t.Skip("Skipping test due to environment variable")
+	}
+	trends, err := testScraper.GetTrends()
 	if err != nil {
 		t.Fatal(err)
 	}
