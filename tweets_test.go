@@ -2,7 +2,6 @@ package twitterscraper_test
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -128,7 +127,7 @@ func TestGetTweetWithMultiplePhotos(t *testing.T) {
 }
 
 func TestGetTweetWithGIF(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
+	if skipAuthTest {
 		t.Skip("Skipping test due to environment variable")
 	}
 	expectedTweet := twitterscraper.Tweet{
@@ -155,7 +154,7 @@ func TestGetTweetWithGIF(t *testing.T) {
 }
 
 func TestGetTweetWithPhotoAndGIF(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
+	if skipAuthTest {
 		t.Skip("Skipping test due to environment variable")
 	}
 	expectedTweet := twitterscraper.Tweet{
@@ -299,7 +298,7 @@ func TestTweetViews(t *testing.T) {
 }
 
 func TestTweetThread(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
+	if skipAuthTest {
 		t.Skip("Skipping test due to environment variable")
 	}
 	tweet, err := testScraper.GetTweet("1665602315745673217")

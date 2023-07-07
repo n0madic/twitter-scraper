@@ -9,14 +9,15 @@ import (
 )
 
 var (
-	username    = os.Getenv("TWITTER_USERNAME")
-	password    = os.Getenv("TWITTER_PASSWORD")
-	email       = os.Getenv("TWITTER_EMAIL")
-	testScraper = twitterscraper.New()
+	username     = os.Getenv("TWITTER_USERNAME")
+	password     = os.Getenv("TWITTER_PASSWORD")
+	email        = os.Getenv("TWITTER_EMAIL")
+	skipAuthTest = os.Getenv("SKIP_AUTH_TEST") != ""
+	testScraper  = twitterscraper.New()
 )
 
 func init() {
-	if username != "" && password != "" {
+	if username != "" && password != "" && !skipAuthTest {
 		err := testScraper.Login(username, password, email)
 		if err != nil {
 			panic(fmt.Sprintf("Login() error = %v", err))
@@ -25,7 +26,7 @@ func init() {
 }
 
 func TestAuth(t *testing.T) {
-	if os.Getenv("SKIP_AUTH_TEST") != "" {
+	if skipAuthTest {
 		t.Skip("Skipping test due to environment variable")
 	}
 	scraper := twitterscraper.New()
