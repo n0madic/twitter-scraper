@@ -99,7 +99,7 @@ import (
 func main() {
     scraper := twitterscraper.New()
     err := scraper.LoginOpenAccount()
-    if err !== nil {
+    if err != nil {
         panic(err)
     }
     for tweet := range scraper.GetTweets(context.Background(), "Twitter", 50) {
@@ -127,7 +127,7 @@ import (
 func main() {
     scraper := twitterscraper.New()
     err := scraper.Login(username, password)
-    if err !== nil {
+    if err != nil {
         panic(err)
     }
     tweet, err := scraper.GetTweet("1328684389388185600")
@@ -223,7 +223,7 @@ import (
 func main() {
     scraper := twitterscraper.New().SetSearchMode(twitterscraper.SearchUsers)
     err := scraper.Login(username, password)
-    if err !== nil {
+    if err != nil {
         panic(err)
     }
     for profile := range scraper.SearchProfiles(context.Background(), "Twitter", 50) {
