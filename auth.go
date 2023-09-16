@@ -341,11 +341,15 @@ func (s *Scraper) LoginOpenAccount() error {
 		if info.Subtasks[0].SubtaskID == "OpenAccount" {
 			s.oAuthToken = info.Subtasks[0].OpenAccount.OAuthToken
 			s.oAuthSecret = info.Subtasks[0].OpenAccount.OAuthTokenSecret
+			if s.oAuthToken == "" || s.oAuthSecret == "" {
+				return fmt.Errorf("auth error: %v", "Token or Secret is empty")
+			}
 			s.isLogged = true
 			s.isOpenAccount = true
+			return nil
 		}
 	}
-	return nil
+	return fmt.Errorf("auth error: %v", "OpenAccount")
 }
 
 // Logout is reset session
